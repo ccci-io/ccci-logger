@@ -39,8 +39,8 @@ top = padding
 bottom = height-padding
 x = 0   # Move left to right keeping track of the current x position for drawing shapes.
 
-large_font = ImageFont.truetype("/home/pi/thermostat/Montserrat-Medium.ttf", 50)
-small_font = ImageFont.truetype("/home/pi/thermostat/Montserrat-Medium.ttf", 16)
+large_font = ImageFont.truetype("/home/pi/ccci-controller/res/Montserrat-Medium.ttf", 50)
+small_font = ImageFont.truetype("/home/pi/ccci-controller/res/Montserrat-Medium.ttf", 16)
 
 #with open('path_to_file/person.json') as f:
     #data = json.load(f)
