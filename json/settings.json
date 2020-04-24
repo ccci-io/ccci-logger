@@ -1,6 +1,7 @@
 {
     "furnace": {
         "on": 22,
-        "off": 23
+        "off": 23,
+        "sensor": "temperature"
     }
 }
