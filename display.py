@@ -2,7 +2,6 @@
 
 from PIL import Image, ImageDraw, ImageFont
 
-from adafruit_si7021 import SI7021
 from adafruit_ssd1306 import SSD1306_I2C
 
 class I2C_OLED:
