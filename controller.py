@@ -5,8 +5,6 @@ import busio
 import json
 
 from adafruit_si7021 import SI7021
-from adafruit_ssd1306 import SSD1306_I2C
-
 from display import I2C_OLED
 
 def beep(boop):
@@ -15,12 +13,12 @@ def beep(boop):
     else:
         return True
 
-def read_settings():
-    with open(folder + 'json/settings.json') as f:
+def read(name):
+    with open(f'{folder}json/{name}.json') as f:
         return json.load(f)
 
-def write_settings(settings):
-    with open(folder + 'json/settings.json', 'w') as f:
+def write(name, settings):
+    with open(f'{folder}json/{name}.json', 'w') as f:
         json.dump(settings, f, indent=4)
 
 def log_data(data):
@@ -32,6 +30,8 @@ def log_data(data):
         }
         json.dump(log, f)
         f.write(',\n')
+
+
 
 def check(data, value, task, boo):
     alert = data['alert'][task]
@@ -53,15 +53,6 @@ def check(data, value, task, boo):
     else:
         flag['check'] = beep(boo)
 
-#async def print_after(flag, temp, delay):
-#    print('30 SECOND DELAY STARTED')
-#    await asyncio.sleep(delay)
-#    print('Temp Check')
-
-#async def print_after(flag, temp, delay):
-#    print('30 SECOND DELAY STARTED')
-#    await asyncio.sleep(delay)
-#    print('Temp Check')
 
 def monitor():
     boop = data['flags']['boop']
@@ -89,11 +80,10 @@ boop = False
 
 i2c = busio.I2C(board.SCL, board.SDA)   # Create library object using Adafruit Bus I2C port
 sensor = SI7021(i2c)
-oled = I2C_OLED(128, 64, i2c, '/home/pi/ccci-controller/')
-disp = SSD1306_I2C(128, 64, i2c)   # Pixel width and height.
+oled = I2C_OLED(128, 64, i2c, folder)
 
 data = {
-    'alerts': read_settings(),
+    'alerts': read('settings'),
     'flags': {
         'furnace': {
             'check': False,
