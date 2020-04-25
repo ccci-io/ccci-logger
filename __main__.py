@@ -13,10 +13,12 @@ async def operate(delay):
         await asyncio.sleep(delay)
 
 async def main():
-    a_monitor = asyncio.create_task(monitor(1))
-    a_operate = asyncio.create_task(operate(30))
-    await a_monitor
-    await a_operate
+    await asyncio.gather(
+        monitor(1),
+        operate(30)
+    )
+
+    #await a_operate
 
 if __name__ == "__main__":
     

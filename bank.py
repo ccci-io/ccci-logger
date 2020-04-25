@@ -21,11 +21,11 @@ class DataBank:
         with open(f'{self.folder}json/{name}.json') as f:
             return json.load(f)
 
-    def write(name, data):
+    def write(self, name, data):
         with open(f'{self.folder}json/{name}.json', 'w') as f:
             json.dump(data, f, indent=4)
 
-    def append(name, data):
+    def append(self, name, data):
         with open(f'{self.folder}json/{name}.json', 'a') as f:
             json.dump(data, f)
             f.write(',\n')
@@ -33,10 +33,11 @@ class DataBank:
     def update_alerts(self):
         self.alerts = self.read('settings')
 
-    def log(self, name):
+    def log(self):
         data = {
             'ts': int(time.time()),
             'sensors': self.sensors,
             'flags': self.flags,
         }
         self.append('log', data)
+
