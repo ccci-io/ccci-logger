@@ -3,17 +3,16 @@
 import board
 import busio
 import digitalio
- 
+
 from adafruit_si7021 import SI7021
 from display import I2C_OLED
 from bank import DataBank
+from panel import SwitchBoard
 
 def check(task):
     alert = data.alerts[task]
     flag = data.flags[task]
     value = data.sensors[alert['sensor']]
-    print(alert)
-    print(flag)
 
     boo = not flag['on']
 
@@ -28,50 +27,49 @@ def check(task):
     if arg:
         if flag['check'] == boo:
             flag['on'] = boo
-            #switchboard(task, boo)
+            sb.turn(task, boo) #sb.io[task].value = boo
         else:
             flag['check'] = boo
     else:
         flag['check'] = not boo
 
-# Switch digital output
-def switchboard(task, boo):
-    gpio[task].value = boo
+def schedule(typ='weekly'):
+    obj = {
+        'weekly': [7, 24, 60],
+        'daily': [24, 60],
+        'hourly': [60],
+    }        
+    return
 
-# Assign digital output
-def digital_output(task, pin):
-    gpio[task] = digitalio.DigitalInOut(pin)
-    gpio[task].direction = digitalio.Direction.OUTPUT
+def respond(frequency=0.2, test=False):
+    if sb.button:
+        print(sb.button)
+    return frequency
 
-# Assign digital input
-def digital_input(task, pin):
-    gpio[task] = digitalio.DigitalInOut(pin)
-    gpio[task].direction = digitalio.Direction.INPUT
-    gpio[task].pull = digitalio.Pull.UP
-
-def monitor():
+def monitor(frequency=1, test=False):
 
     oled.temperature(sensor.temperature)
 
-    print(f"\nTemperature: {round(sensor.temperature, 2)} C")
-    print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
-    print(data.flags)
+    if test:
+        print(f"\nTemperature: {round(sensor.temperature, 2)} C")
+        print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
+        print(data.flags)
 
     data.sensors['temperature'] = round(sensor.temperature, 2)
     data.sensors['humidity'] = round(sensor.relative_humidity, 2)
+
+    return frequency
     
-def operate():
+def operate(frequency=30, test=False):
     check('furnace')
     data.log()
+    return frequency
 
 folder = (__file__)[0:-13]
 
-i2c = busio.I2C(board.SCL, board.SDA)   # Create library object using Adafruit Bus I2C port
-sensor = SI7021(i2c)
-oled = I2C_OLED(128, 64, i2c, folder)
-
-gpio = {}
-digital_output('furnace', board.D18)
-
+i2c = busio.I2C(board.SCL, board.SDA)   # Adafruit Bus I2C port library
+sensor = SI7021(i2c)                    # Adafruit library for SI7021 sensor
+oled = I2C_OLED(128, 64, i2c, folder)   # Object that handles display
 
 data = DataBank(folder)
+sb = SwitchBoard()

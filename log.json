@@ -1,4 +1,0 @@
-{"ts": 1587566560, "data": {"temp": 21.46, "humidity": 35.25}, "flags": {"furnace": {"check": true, "on": false}}},
-{"ts": 1587566590, "data": {"temp": 21.48, "humidity": 35.21}, "flags": {"furnace": {"check": true, "on": true}}},
-{"ts": 1587566620, "data": {"temp": 21.5, "humidity": 35.16}, "flags": {"furnace": {"check": true, "on": true}}},
-{"ts": 1587566650, "data": {"temp": 21.53, "humidity": 35.13}, "flags": {"furnace": {"check": true, "on": true}}},

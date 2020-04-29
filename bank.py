@@ -14,7 +14,7 @@ class DataBank:
         }
         self.sensors = {
             'temperature': self.alerts['furnace']['off'],
-            'humidity': 0
+            'humidity': 0,
         }
 
     def read(self, name):
@@ -41,3 +41,8 @@ class DataBank:
         }
         self.append('log', data)
 
+
+class Remote(DataBank):
+
+    def receive(self):
+        return

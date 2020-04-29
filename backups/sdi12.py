@@ -51,7 +51,7 @@ def cmd(command=b'?!', options=[]):
     if 'raw' in options:
         output = ser.read(100)
         print(output)
-    else: 
+    else:
         output = ser.read(100).decode('ASCII').split('\r\n')[0].split("+")
         for i in range(0, len(output)):
             if i == 0:
