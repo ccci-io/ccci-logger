@@ -1,10 +1,10 @@
 #! /usr/bin/env python3
 
 import asyncio
-import controller
 import sys
 import os
-
+#local
+import controller
 
 
 async def loop(func):
@@ -34,7 +34,6 @@ if __name__ == "__main__":
             && git config --global user.email “i@ccci.io” \
                 && git add . && git commit -m "Dev commits" \
                     && git push origin master')
-    else:
+    elif command == 'run':
         asyncio.run(main())
     #globals()['age']
-

@@ -38,3 +38,17 @@ class SwitchBoard:
     def switch_true(self):
         if any(self.listen):
             self.button = self.listen.index(True)
+
+
+class Schedule:
+
+    def __init__(sch):      # (0) min, (13)th hour, (4)th day of the week
+        ls = [60, 60, 24][0:len(sch)]
+        self.secs = [a * b for a, b in zip(ls, sch)]
+
+    def check():
+        return
+
+
+if __name__ == "__main__":
+    sch = Schedule()
