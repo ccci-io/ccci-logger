@@ -30,7 +30,10 @@ if __name__ == "__main__":
         test()
     elif command == 'git':
         os.chdir(os.getcwd() + "//ccci-controller")
-        os.system('git config --global user.name “ccci-io” && git config --global user.email “i@ccci.io” && git add . && git commit -m "Dev commits" && git push origin master')
+        os.system('git config --global user.name “ccci-io” \
+            && git config --global user.email “i@ccci.io” \
+                && git add . && git commit -m "Dev commits" \
+                    && git push origin master')
     else:
         asyncio.run(main())
     #globals()['age']
