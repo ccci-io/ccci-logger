@@ -7,9 +7,9 @@ import os
 import controller
 
 
-async def loop(func):
+async def loop(func, args=[]):
     while True:
-        delay = getattr(controller, func)()
+        delay = getattr(controller, func)(*args)
         await asyncio.sleep(delay)
 
 async def main():
@@ -19,15 +19,28 @@ async def main():
         loop('operate'),
     )
 
-def test():
+
+### # TESTING # ###
+
+def once():
     controller.respond(test=True)
     controller.monitor(test=True)
     controller.operate(test=True)
 
+async def test():
+    await asyncio.gather(
+        loop('respond', [0.2, True]),
+        loop('monitor', [1, True]),
+        loop('operate', [5, True]),
+    )
+
+
 if __name__ == "__main__":
     command = sys.argv[1]
-    if command == 'test':
+    if command == 'once':
         test()
+    elif command == 'test':
+        asyncio.run(test())
     elif command == 'git':
         os.chdir(os.getcwd() + "//ccci-controller")
         os.system('git config --global user.name “ccci-io” \

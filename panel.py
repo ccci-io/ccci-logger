@@ -6,13 +6,12 @@ class SwitchBoard:
 
     def __init__(self):
         self.io = {}
-        self.button = 0
+        self.button = {}
         self.digital_output('furnace', board.D18)
-        self.digital_input('button1', board.D18)
-        self.listen = [
-            False,
-            self.io['button1'].value,
-        ]
+        #self.digital_input('up', board.D17)
+        #self.digital_input('down', board.D17)
+        #self.digital_input('left', board.D17)
+        #self.digital_input('right', board.D17)
 
     # Switch digital output
     def turn(self, task, boo):
@@ -28,16 +27,13 @@ class SwitchBoard:
         self.io[task] = digitalio.DigitalInOut(pin)
         self.io[task].direction = digitalio.Direction.INPUT
         self.io[task].pull = digitalio.Pull.UP
+        self.button[task] = self.io[task].value
     
     #def analog_input(self, task, pin):
     #    self.io[task] = analogio.AnalogIn(pin)
     
     def get_voltage(self, task):
         return (self.io[task].value * 3.3) / 65536
-
-    def switch_true(self):
-        if any(self.listen):
-            self.button = self.listen.index(True)
 
 
 class Schedule:

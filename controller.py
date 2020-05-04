@@ -6,7 +6,7 @@ import digitalio
 
 from adafruit_si7021 import SI7021
 #local
-from display import I2C_OLED
+from display import I2C_OLED, OLED_Menu
 from bank import DataBank
 from panel import SwitchBoard
 
@@ -38,10 +38,12 @@ def check(task):
 
 
 def respond(frequency=0.2, test=False):
+    if any(sb.button.values()):
+        button = list(sb.button.keys())[list(sb.button.values()).index(True)]
+        menu.goto(button)
 
-    if sb.button:
-        print(sb.button)
-
+        #frequency = 0.5
+        
     return frequency
 
 
@@ -50,11 +52,10 @@ def monitor(frequency=1, test=False):
     data.sensors['temperature'] = round(sensor.temperature, 2)
     data.sensors['humidity'] = round(sensor.relative_humidity, 2)
 
-    oled.show()
-    #oled.large('temperature', sensor.temperature, '°')
-    #oled.large('temperature', sensor.relative_humidity, '°')
+    menu.interface()
 
-    if True:
+    if test:
+        #menu.test()
         print(f"\nTemperature: {round(sensor.temperature, 2)} C")
         print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
         print(data.flags)
@@ -74,5 +75,6 @@ folder = (__file__)[0:-13]
 i2c = busio.I2C(board.SCL, board.SDA)   # Adafruit Bus I2C port library
 sensor = SI7021(i2c)                    # Adafruit library for SI7021 sensor
 data = DataBank(folder)
-oled = I2C_OLED(128, 64, i2c, folder, data)   # Object that handles display
+#oled = I2C_OLED(128, 64, i2c, folder, data)   # Object that handles display
+menu = OLED_Menu(128, 64, i2c, folder, data)   # Object that handles display
 sb = SwitchBoard()

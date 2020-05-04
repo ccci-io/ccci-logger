@@ -16,6 +16,7 @@ class DataBank:
             'temperature': self.alerts['furnace']['off'],
             'humidity': 0,
         }
+        self.mapout = [1, 1, 1]
 
     def read(self, name):
         with open(f'{self.folder}json/{name}.json') as f:
