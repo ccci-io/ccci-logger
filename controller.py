@@ -47,20 +47,31 @@ def respond(frequency=0.1, test=False):
 
 
 def log(frequency=3600, test=False):
-
+    #print('\nWHICH PROBES?')
+    #sdi12.read('which')
+    print('\nPROBE ID:')
+    sdi12.read('id', ['raw'])
+    #print(sdi12.cmd('id'))
+    print('\nPROBE VERIFICATION:')
+    sdi12.read('verify', ['raw'])
+    print('\nPROBE VOLTAGE SUPPLY:')
     sdi12.read('volt')
+    print('\nTEMPERATURE RAW:')
     sdi12.read('temp', ['raw'])
+    print('\nTEMPERATURE ARRAY:')
     sdi12.read('temp')
+    print('\nMOISTURE CONTENT RAW:')
+    sdi12.read('mc', ['raw'])
+    sdi12.read('mc1', ['raw'])
+    sdi12.read('mc2', ['raw'])
+    sdi12.read('mc3', ['raw'])
     sdi12.close()
 
     #data.sensors['temp'] = 
-    #data.sensors['vwc'] = 
+    #data.sensors['mc'] = 
     #data.log()
 
     if test:
-        menu.test()
-        print(f"\nTemperature: {round(sensor.temperature, 2)} C")
-        print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
         print(data)
 
     return frequency

@@ -15,7 +15,7 @@ async def loop(func, args=[]):
 async def main():
     await asyncio.gather(
         loop('log'),
-        loop('response'),
+        loop('respond'),
         loop('schedule'),
     )
 
@@ -27,13 +27,13 @@ async def input_enter():
 
 def once():
     controller.log(test=True)
-    controller.response(test=True)
+    controller.respond(test=True)
     controller.schedule(test=True)
 
 async def test():
     await asyncio.gather(
-        loop('log', {'test': True}),
-        loop('response', {'test': True}),
+        loop('log', {'test': True, 'frequency': 60}),
+        loop('respond', {'test': True}),
         loop('schedule', {'test': True}),
     )
 
