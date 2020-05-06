@@ -8,7 +8,7 @@ import time
 
 class SDI12:
 
-    def __init__(self, port)
+    def __init__(self, port):
         self.cmd_sq = {
             'which' : [b'?!'],
             'id' : [b'I!'],
