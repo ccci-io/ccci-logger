@@ -4,14 +4,13 @@ import board
 import busio
 import digitalio
 
-from adafruit_si7021 import SI7021
 #local
-from display import I2C_OLED, OLED_Menu
 from bank import DataBank
 from panel import SwitchBoard
+from sensors import SDI12
 
 
-def check(task):
+def logic_check(task):
 
     alert = data.alerts[task]
     flag = data.flags[task]
@@ -19,62 +18,70 @@ def check(task):
 
     boo = not flag['on']
 
-    if boo:                             # If furnace is [off]
-        arg = value < alert['on']       # TRUE if colder than [on] alert
-    else:                               # If furnace is [on]
-        arg = value > alert['off']      # TRUE if warmer than [off] alert
+    if boo:
+        arg = value < alert['on']
+    else:
+        arg = value > alert['off']
 
-    if alert['on'] > alert['off']:      # Correction for air conditioning
+    if alert['on'] > alert['off']:
         arg = not arg
 
     if arg:
         if flag['check'] == boo:
             flag['on'] = boo
             sb.turn(task, boo) #sb.io[task].value = boo
+            
         else:
             flag['check'] = boo
     else:
         flag['check'] = not boo
 
 
-def respond(frequency=0.2, test=False):
-    if any(sb.button.values()):
-        button = list(sb.button.keys())[list(sb.button.values()).index(True)]
+def respond(frequency=0.1, test=False):
+    status = sb.get_input()
+    if any(status.values()):
+        button = list(status.keys())[list(status.values()).index(True)]
         menu.goto(button)
-
         #frequency = 0.5
-        
     return frequency
 
 
-def monitor(frequency=1, test=False):
+def log(frequency=3600, test=False):
 
-    data.sensors['temperature'] = round(sensor.temperature, 2)
-    data.sensors['humidity'] = round(sensor.relative_humidity, 2)
+    sdi12.read('volt')
+    sdi12.read('temp', ['raw'])
+    sdi12.read('temp')
+    sdi12.close()
 
-    menu.interface()
+    #data.sensors['temp'] = 
+    #data.sensors['vwc'] = 
+    #data.log()
 
     if test:
-        #menu.test()
+        menu.test()
         print(f"\nTemperature: {round(sensor.temperature, 2)} C")
         print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
-        print(data.flags)
+        print(data)
 
     return frequency
 
 
-def operate(frequency=30, test=False):
+def schedule(frequency=60, test=False):
 
-    check('furnace')
-    data.log()
+    #schedule_check('modem')
+    
 
     return frequency
 
 folder = (__file__)[0:-13]
 
-i2c = busio.I2C(board.SCL, board.SDA)   # Adafruit Bus I2C port library
-sensor = SI7021(i2c)                    # Adafruit library for SI7021 sensor
 data = DataBank(folder)
-#oled = I2C_OLED(128, 64, i2c, folder, data)   # Object that handles display
-menu = OLED_Menu(128, 64, i2c, folder, data)   # Object that handles display
+
+sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyS0' for IO pins
+
 sb = SwitchBoard()
+sb.digital_output('modem', board.D18)
+sb.digital_input('button1', board.D17)
+sb.digital_input('button2', board.D27)
+
+

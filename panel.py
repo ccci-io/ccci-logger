@@ -6,12 +6,7 @@ class SwitchBoard:
 
     def __init__(self):
         self.io = {}
-        self.button = {}
-        self.digital_output('furnace', board.D18)
-        #self.digital_input('up', board.D17)
-        #self.digital_input('down', board.D17)
-        #self.digital_input('left', board.D17)
-        #self.digital_input('right', board.D17)
+        self.status = []
 
     # Switch digital output
     def turn(self, task, boo):
@@ -26,8 +21,14 @@ class SwitchBoard:
     def digital_input(self, task, pin):
         self.io[task] = digitalio.DigitalInOut(pin)
         self.io[task].direction = digitalio.Direction.INPUT
-        self.io[task].pull = digitalio.Pull.UP
-        self.button[task] = self.io[task].value
+        self.io[task].pull = digitalio.Pull.DOWN
+        self.status.append(task)
+
+    def get_input(self):
+        buttons = {}
+        for task in self.status:
+            buttons[task] = self.io[task].value
+        return buttons
     
     #def analog_input(self, task, pin):
     #    self.io[task] = analogio.AnalogIn(pin)

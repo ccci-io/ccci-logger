@@ -4,19 +4,15 @@ import json
 class DataBank:
     def __init__(self, folder):
         self.folder = folder
-        self.alerts = self.read('settings')
+        self.alerts = self.read('settings') #DJANGO SERVER WILL REPLACE THIS!
         #self.update_alerts()
         self.flags = {
-            'furnace': {
-                'check': False,
+            'modem': {
                 'on': False,
+                'notified': False,
             },
         }
-        self.sensors = {
-            'temperature': self.alerts['furnace']['off'],
-            'humidity': 0,
-        }
-        self.mapout = [1, 1, 1]
+        self.sensors = {}
 
     def read(self, name):
         with open(f'{self.folder}json/{name}.json') as f:
@@ -41,6 +37,9 @@ class DataBank:
             'flags': self.flags,
         }
         self.append('log', data)
+
+    def __repr__(self):
+        return json.dumps(self.flags)
 
 
 class Remote(DataBank):
