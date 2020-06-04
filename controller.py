@@ -9,7 +9,6 @@ from bank import DataBank
 from panel import SwitchBoard
 from sensors import SDI12
 
-
 def logic_check(task):
 
     alert = data.alerts[task]
