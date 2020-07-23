@@ -79,7 +79,8 @@ folder = (__file__)[0:-13]
 
 data = DataBank(folder)
 
-sdi12 = SDI12('/dev/serial0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0' 
+#sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
+sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
 
 sb = SwitchBoard()
 sb.digital_output('modem', board.D18)

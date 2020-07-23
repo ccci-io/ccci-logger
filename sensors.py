@@ -76,7 +76,7 @@ class SDI12:
 # FOR DIRECT TEST ONLY
 if __name__ == "__main__":
 
-    sensor = SDI12()
+    sensor = SDI12('/dev/serial0')
     #sensor.read('volt')
     sensor.read('temp', 'raw')
     sensor.cmd(b'?!')
