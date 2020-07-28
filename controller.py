@@ -7,48 +7,29 @@ import digitalio
 #local
 from bank import DataBank
 from panel import SwitchBoard
-from sensors import SDI12
+from sentek_usb import SDI12
 
-def logic_check(task):
+import check
 
-    alert = data.alerts[task]
-    flag = data.flags[task]
-    value = data.sensors[alert['sensor']]
-
-    boo = not flag['on']
-
-    if boo:
-        arg = value < alert['on']
-    else:
-        arg = value > alert['off']
-
-    if alert['on'] > alert['off']:
-        arg = not arg
-
-    if arg:
-        if flag['check'] == boo:
-            flag['on'] = boo
-            sb.turn(task, boo) #sb.io[task].value = boo
-            
-        else:
-            flag['check'] = boo
-    else:
-        flag['check'] = not boo
-
-
-def respond(frequency=0.1, test=False):
-    status = sb.get_input()
-    if any(status.values()):
-        button = list(status.keys())[list(status.values()).index(True)]
-        #menu.goto(button)
-        #frequency = 0.5
-    return frequency
+LOOPS = [
+    ['log', {'frequency': 60}],
+    #['respond', {}],
+    ['schedule', {}],
+]
+#def respond(frequency=0.1, test=False):
+#    status = sb.get_input()
+#    if any(status.values()):
+#        button = list(status.keys())[list(status.values()).index(True)]
+#        #menu.goto(button)
+#        #frequency = 0.5
+#    return frequency
 
 
 def log(frequency=3600, test=False):
+    print('Log function called.')
 
-    if not sdi12.ser.is_open:
-        sdi12.ser.open()
+    #if not sdi12.ser.is_open:
+    #    sdi12.ser.open()
 
     #sdi12.read('volt')
     #sdi12.read('temp')
@@ -69,18 +50,19 @@ def log(frequency=3600, test=False):
     return frequency
 
 def schedule(frequency=60, test=False):
-
+    print('Schedule function called.')
     #schedule_check('modem')
     
 
     return frequency
-
+    
 folder = (__file__)[0:-13]
 
 data = DataBank(folder)
 
 #sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
-sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
+#sdi12 = SDI12('/dev/ttyUSB0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
+sdi12 = SDI12('/dev/ttyACM0') #'/dev/ttyUSB0' for IO pins '/dev/ttyAMA0'
 
 sb = SwitchBoard()
 sb.digital_output('modem', board.D18)

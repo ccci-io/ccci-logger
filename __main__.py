@@ -7,17 +7,18 @@ import os
 import controller
 
 
-async def loop(func, args=[]):
+async def loop(func, args={}):
     while True:
         delay = getattr(controller, func)(**args)
         await asyncio.sleep(delay)
 
 async def main():
-    await asyncio.gather(
-        loop('log'),
-        loop('respond'),
-        loop('schedule'),
-    )
+    task = {}
+    for i in controller.LOOPS:
+        task[i[0]] = asyncio.create_task(loop(i[0]))
+        
+    for i in controller.LOOPS:    
+        await task[i[0]]
 
 async def input_enter():
     message = input("Press enter to quit\n\n")
@@ -26,22 +27,24 @@ async def input_enter():
 ### # TESTING # ###
 
 def once():
-    controller.log(test=True)
-    controller.respond(test=True)
-    controller.schedule(test=True)
+    for i in controller.LOOPS:
+        getattr(controller, i[0])(**i[1])
 
 async def test():
-    await asyncio.gather(
-        loop('log', {'test': True, 'frequency': 60}),
-        loop('respond', {'test': True}),
-        loop('schedule', {'test': True}),
-    )
+    task = {}
+    for i in controller.LOOPS:
+        task[i[0]] = asyncio.create_task(loop(i[0], {'test': True, **i[1]}))
+        
+    for i in controller.LOOPS:    
+        await task[i[0]]
 
 
 if __name__ == "__main__":
     command = sys.argv[1]
     if command == 'once':
         once()
+    elif command == 'only':
+        getattr(controller, sys.argv[2])()
     elif command == 'test':
         asyncio.run(test())
     elif command == 'git':

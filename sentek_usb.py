@@ -67,11 +67,8 @@ class SDI12:
         return output
 
     def test(self):
-        #for i in self.cmd_sq.keys():
-        #    self.read(i, 'raw')
-        #
-        output = self.ser.read(10000)
-        print(output)
+        for i in self.cmd_sq.keys():
+            self.read(i, 'raw')
 
     def close(self):
         self.ser.close()
