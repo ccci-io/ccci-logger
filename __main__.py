@@ -26,9 +26,9 @@ async def input_enter():
 
 ### # TESTING # ###
 
-def once():
+def once(test=False):
     for i in controller.LOOPS:
-        getattr(controller, i[0])(**i[1])
+        getattr(controller, i[0])(test=test, **i[1])
 
 async def test():
     task = {}
@@ -43,6 +43,8 @@ if __name__ == "__main__":
     command = sys.argv[1]
     if command == 'once':
         once()
+    elif command == 'testonce':
+        once(True)
     elif command == 'only':
         getattr(controller, sys.argv[2])()
     elif command == 'test':
