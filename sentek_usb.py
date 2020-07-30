@@ -17,7 +17,8 @@ class SDI12:
             'vwc': [bus+b'C0!', bus+b'D0!', bus+b'D1!'],
             'temp': [bus+b'C2!', bus+b'D0!', bus+b'D1!'],
             'volt': [bus+b'M9!', bus+b'D0!'],
-        } # https://www.fondriest.com/pdf/sentek_drill_drop_probe_manual.pdf
+        }   # https://www.fondriest.com/pdf/sentek_drill_drop_probe_manual.pdf
+            # https://s.campbellsci.com/documents/ca/manuals/drill&drop_man.pdf
         # '/dev/ttyUSB0'
         self.ser = serial.Serial(
             port, # '/dev/ttyS0', '/dev/ttyUSB0'
@@ -29,9 +30,9 @@ class SDI12:
             write_timeout=1.5,
             rtscts=False,
             dsrdtr=False,
-            )  # open serial port
-        #print(self.ser.is_open)
-        #self.ser.open()
+            )   # open serial port
+                # print(self.ser.is_open)
+                # self.ser.open()
 
     def cmd(self, command=b'?!', *options):
         self.ser.send_break(duration=0.025)
