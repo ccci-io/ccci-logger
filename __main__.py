@@ -55,6 +55,12 @@ if __name__ == "__main__":
             && git config --global user.email “i@ccci.io” \
                 && git add . && git commit -m "Dev commits" \
                     && git push origin master')
+    elif command == 'pull':
+        os.chdir(os.getcwd() + "//ccci-logger")
+        os.system('git config --global user.name “ccci-io” \
+            && git config --global user.email “i@ccci.io” \
+                && git pull https://github.com/ccci-io/ccci-logger.git')
     elif command == 'run':
         asyncio.run(main())
     #globals()['age']
+    
