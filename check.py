@@ -20,17 +20,24 @@ class TaskBot:
 
         # FILL SEQUENCE
     def get_next(self):
+        dt_now = datetime.now()
         if self.ls == []:
             self.schedule()
+        print(dt_now-self.ls[0])
 
-        return self.ls.pop(0)
+        return dt_now-self.ls.pop(0)
 
+    def byDateTime(self, elem):
+        return elem[0]
+
+    def sort_ls(self):
+        self.ls.sort(key=self.byDateTime)
 
     def time_to_minute(self, minute):
-        now = datetime.now()
+        dt_now = datetime.now()
         dt = now.replace(minute=minute)
 
-        if dt < now:
+        if dt < dt_now:
             dt += timedelta(hours=1)
         
         return dt
@@ -95,6 +102,8 @@ class TaskBot:
                 self.create_task(task_on)
                 self.create_task(task_off)
                 # self.create_task(self.branch_task(task))
+        
+        self.sort_ls()
                     
 
 
