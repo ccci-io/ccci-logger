@@ -19,21 +19,38 @@ LOOPS = [ # [function, {test: params}]
 TASKS = [
     {   # Run pull request from git at <daily:12>
         'action': 'git_pull',   # Function
-        #'second': 0,            # On <1-60>th second of minute. (DEFAULT=0)
         'minute': 5,            # On <1-60>th minute of hour. (DEFAULT=0)
         'hour': 12,             # On <1-24>th hour of day. <0> for every hour. (DEFAULT=0)
         #'day': 0,               # On <1-31>th day of month. <0> for every day. (DEFAULT=0)
         #'month': 0,             # On <1-12>th month of the year. <0> for every month. (DEFAULT=0)
         #'year': 0,              # On <2020+>th year. <0> for every year. (DEFAULT=0)
-        #'weekday': 0,           # On <1-7> Monday. <0> for for every weekday. (DEFAULT=0)
+        #'isoweekday': 0,           # On <1-7> Monday. <0> for for every weekday. (DEFAULT=0)
     },
     {   # Turn on the modem on <daily:11-13>th hour of every day.
         'action': ['modem_on', 'modem_off'],
         'hour': [11, 13],
     },
+    {   # Turn on the modem on <daily:11-13>th hour of every day.
+        'action': ['modem_on', 'modem_off'],
+        'hour': [9, 13],
+        'minute': [5, 5],
+    },
+    {   # Turn on the modem on <daily:11-13>th hour of every day.
+        'action': ['modem_on', 'modem_off'],
+        'day': [11, 13],
+        'minute': [5, 5],
+    },
+    {   # Run pull request from git at <daily:12>
+        'action': 'test1',      # Function
+        'minute': 5,            # On <1-60>th minute of hour. (DEFAULT=0)
+        'hour': 12,
+    },
+    {   # Run pull request from git at <daily:12>
+        'action': 'test2',      # Function
+        'minute': 5,            # On <1-60>th minute of hour. (DEFAULT=0)
+        'hour': 12,
+    },    
 ]
-
-
 
 #def respond(frequency=0.1, test=False):
 #    status = sb.get_input()
@@ -45,37 +62,44 @@ TASKS = [
 
 def log(frequency=3600, test=False):
     print('Log function called.')
+    
 
     if not sdi12.ser.is_open:
         sdi12.ser.open()
 
     sdi12.read('volt')
-    sdi12.read('temp')
-    sdi12.read('vwc')
 
     if test:
         sdi12.test()
     sdi12.ser.close()
 
-    #data.sensors['temp'] = sdi12.read('temp')
-    #data.sensors['mc'] = sdi12.read('vwc')
-    #data.log()
+    data.sensors['temp'] = sdi12.read('temp')
+    data.sensors['mc'] = sdi12.read('vwc')
 
     if test:
         print(data)
         #sdi12.cmd(b'0I!', 'raw')
         #sdi12.read('id', 'raw')
 
-
-    return frequency
+    return tasks.time_to_minute(5)
 
 def schedule(frequency=60, test=False):
+    print(tasks.exe, tasks.ls)
     return tasks.get_next()
+
+
+
+def modem_on():
+    print('Modem_on function called.')
+
+def modem_off():
+    print('Modem_off function called.')
     
 folder = (__file__)[0:-13]
 
 data = DataBank(folder)
 tasks = TaskBot(TASKS)
+tasks.schedule()
 
 sdi12 = SDI12('/dev/ttyUSB0')  # SENTEK_USB
 #sdi12 = SDI12('/dev/ttyACM0')   # ARDUINO
