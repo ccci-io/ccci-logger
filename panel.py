@@ -30,8 +30,8 @@ class SwitchBoard:
             buttons[task] = self.io[task].value
         return buttons
     
-    #def analog_input(self, task, pin):
-    #    self.io[task] = analogio.AnalogIn(pin)
+    def analog_input(self, task, pin):
+        self.io[task] = analogio.AnalogIn(pin)
     
     def get_voltage(self, task):
         return (self.io[task].value * 3.3) / 65536

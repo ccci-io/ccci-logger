@@ -17,15 +17,18 @@ class TaskBot:
 
     def __init__(self, TASKS):
         self.TASKS = TASKS
+        self.schedule()
 
         # FILL SEQUENCE
     def get_next(self):
         dt_now = datetime.now()
-        if self.ls == []:
+        if not self.ls:
             self.schedule()
-        print(dt_now-self.ls[0])
-
-        return dt_now-self.ls.pop(0)
+        ls_next = self.ls.pop(0)
+        self.exe.append(ls_next[1])
+        timeto = ls_next[0]-dt_now
+        seconds = int(timeto.total_seconds()) # timeto.seconds
+        return seconds
 
     def byDateTime(self, elem):
         return elem[0]
@@ -39,8 +42,12 @@ class TaskBot:
 
         if dt < dt_now:
             dt += timedelta(hours=1)
-        
-        return dt
+
+        return int(dt.total_seconds())
+
+    def time_from_now(self, *args, **kwargs):
+        dt_now = datetime.now()
+        dt_now + timedelta(*args, **kwargs)
 
 
     def branch_task(self, task):
@@ -51,22 +58,6 @@ class TaskBot:
             task_off[key] = task[key][1]
         
         return task_on, task_off
-
-    """def check_state(self, task, task_on, task_off):
-        match = True
-        if task_on == 'isoweekday':
-            self.now.isoweekday()
-        for key in KEYS:
-            try:
-                if not task[key][0] < getattr(self.now, key)() <= task[key][1]:
-                    match = False
-                    break
-                if key == task_on:
-                    break
-            except:
-                continue
-        
-        return match"""
 
 
     def check_state(self, arg_task):
@@ -82,7 +73,6 @@ class TaskBot:
             self.exe.append(action)
         
 
-
     def schedule(self):
         self.now = datetime.now()
         self.start = self.now.replace(second=0, minute=0, hour=0)
@@ -93,7 +83,6 @@ class TaskBot:
         tasks = self.TASKS.copy()
 
         for task in tasks:
-            
             if type(task['action']) == str:
                 self.create_task(task)
             elif type(task['action']) == list:

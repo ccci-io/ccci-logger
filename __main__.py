@@ -16,6 +16,7 @@ async def loop(func, args={}):
 async def main():
     task = {}
     for i in controller.LOOPS:
+        #task[i[0]] = asyncio.create_task(loop(**i))
         task[i[0]] = asyncio.create_task(loop(i[0]))
         
     for i in controller.LOOPS:    
@@ -27,25 +28,24 @@ async def main():
 
 ### # TESTING # ###
 
-def once(test=False):
-    for i in controller.LOOPS:
-        getattr(controller, i[0])(test=test, **i[1])
-
 async def test():
     task = {}
     for i in controller.LOOPS:
         task[i[0]] = asyncio.create_task(loop(i[0], {'test': True, **i[1]}))
         
-    for i in controller.LOOPS:    
+    for i in controller.LOOPS:
         await task[i[0]]
+
+def once(test=False):
+    for i in controller.LOOPS:
+        getattr(controller, i[0])(test=test, **i[1])
+
 
 
 if __name__ == "__main__":
     command = sys.argv[1]
     if command == 'once':
         once()
-    elif command == 'test':
-        once(True)
     elif command == 'only':
         getattr(controller, sys.argv[2])()
     elif command == 'test':
