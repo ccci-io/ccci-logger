@@ -1,0 +1,2 @@
+class MicroBoard:
+    environment = 'micropython'

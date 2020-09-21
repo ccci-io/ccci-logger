@@ -4,22 +4,24 @@ import asyncio
 import sys
 import os
 #local
-import controller
+import datalogger as default
+#import . as root
+#default = root.datalogger
 
 # LOOP CREATE FUNCTION
 async def loop(func, args={}):
     while True:
-        delay = getattr(controller, func)(**args)
+        delay = getattr(default, func)(**args)
         await asyncio.sleep(delay)
 
 # MAIN ENGINE
 async def main():
     task = {}
-    for i in controller.LOOPS:
+    for i in default.LOOPS:
         #task[i[0]] = asyncio.create_task(loop(**i))
         task[i[0]] = asyncio.create_task(loop(i[0]))
         
-    for i in controller.LOOPS:    
+    for i in default.LOOPS:
         await task[i[0]]
 
 #async def input_enter():
@@ -30,15 +32,16 @@ async def main():
 
 async def test():
     task = {}
-    for i in controller.LOOPS:
+    for i in default.LOOPS:
         task[i[0]] = asyncio.create_task(loop(i[0], {'test': True, **i[1]}))
+        print(f'Called {i} LOOP.')
         
-    for i in controller.LOOPS:
+    for i in default.LOOPS:
         await task[i[0]]
 
 def once(test=False):
-    for i in controller.LOOPS:
-        getattr(controller, i[0])(test=test, **i[1])
+    for i in default.LOOPS:
+        getattr(default, i[0])(test=test, **i[1])
 
 
 
@@ -47,7 +50,7 @@ if __name__ == "__main__":
     if command == 'once':
         once()
     elif command == 'only':
-        getattr(controller, sys.argv[2])()
+        getattr(default, sys.argv[2])()
     elif command == 'test':
         if len(sys.argv) > 2:
             if sys.argv[2] == once:
