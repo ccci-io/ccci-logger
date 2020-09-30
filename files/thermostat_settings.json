@@ -5,7 +5,7 @@
             "on": 22,
             "off": 23,
             "switch": false,
-            "flag": 0
+            "flag": false
         }
     ],
     "active_case": "Default Furnace",

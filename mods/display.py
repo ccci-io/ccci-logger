@@ -63,7 +63,7 @@ class OLED_Menu:
         return self.interface(*args, **kwargs)
 
 
-    def interface(self, mode=False, select=False, *args, **kwargs):
+    def interface(self, mode=False, select=False):
         if mode:
             self.mode = mode
         if select:
@@ -71,20 +71,11 @@ class OLED_Menu:
         getattr(self, self.mode)(self.select, *args, **kwargs)
         
 
-    def button_press(self, button):
-        try:
-            controls = self.controls[button]
-            self.interface(*controls)
-        except:
-            pass
-
-
     def translate(self, val):
         lang_index = self.lang_dict[0].index(self.data.lang)
         if lang_index:
             word_index = list(zip(*self.lang_dict))[0].index(val)
             return self.lang_dict[word_index][lang_index]
-
 
     # # # ############################### # # #
     # # # #####     IMAGE OPERATIONS      # # #
@@ -103,25 +94,24 @@ class OLED_Menu:
     # # # #####      BUTTON CONTROLS      # # #
     # # # ############################### # # #
 
+    def button_press(self, button):
+        try:
+            controls = self.controls[button]
+            self.interface(*controls)
+        except:
+            pass
+
     def valid_select(self, select, items):
         if select >= len(items):
             select = 0
         return select
 
-    def set_controls(self, menu):
-        items = {
-            'display_menu': [
-                'large_temperature',
-                'large_humidity',
-                'stats',
-                'network',
-            ],
-        }
-        self.select = items[menu].index(self.mode)
+    def set_controls(self, menu_items, selected_menu):
+        self.select = menu_items[selected_menu].index(self.mode)
         self.controls = {
-            'up': [items[menu][self.valid_select(self.select-1, items[menu])]],
-            'down': [items[menu][self.valid_select(self.select+1, items[menu])]],
-            'left': [menu],
+            'up': [menu_items[selected_menu][self.valid_select(self.select-1, menu_items[selected_menu])]],
+            'down': [menu_items[selected_menu][self.valid_select(self.select+1, menu_items[selected_menu])]],
+            'left': [selected_menu],
         }
 
     # # # ############################### # # #
@@ -135,14 +125,6 @@ class OLED_Menu:
         self.draw.text((self.x+100, self.top+24), f"{unit}", font=self.font(25), fill=255)
         self.show()
         self.set_controls('display_menu')
-    
-    def large_temperature(self, select):
-        self.mode = 'large_temperature'
-        self.large_display('TEMPERATURE', data.signal['temperature'], 'O')
-
-    def large_humidity(self, select):
-        self.mode = 'large_humidity'
-        self.large_display('HUMIDITY', data.signal['relative_humidity'], '%')
 
     # # # ############################### # # #
     # # # #####     DISPLAY STATS         # # #
@@ -155,15 +137,6 @@ class OLED_Menu:
             self.draw.text((self.x, self.top+8+height), i[0], font=self.font(i[1]), fill=255)
             height += i[1]
         self.show()
-
-    def stats(self, select):
-        self.mode = 'stats'
-        self.set_controls('display_menu')
-        self.stats_display(
-            ['STATS', 16],
-            [f'TEMP:  {round(data.signal['temperature'], 1)}°', 18],
-            [f'HUMID: {round(data.signal['relative_humidity'], 1)}%', 18],
-        )
 
     def network(self, select):
         self.mode = 'network'
@@ -208,25 +181,6 @@ class OLED_Menu:
         draw.text((self.x-2, self.top+34), center, font=self.font(20), fill=255)
         draw.text((self.x, self.top+56), bottom, font=self.font(12), fill=255)
         self.show()
-
-    def main_menu(self, select):
-        self.mode = 'main_menu'
-        items = [
-            ['display_select', 'SELECT DISPLAY'],        # Display temp / humidity / stats
-            ['heat_menu', 'SET HEAT'],          # Set alerts
-            ['about', 'ABOUT'],                 # Version
-        ]
-        self.menu_display('MAIN MENU', items, select)
-
-    def display_select(self, select):
-        self.mode = 'display_menu'
-        items = [       # 0 - FUNCTION .. 1 - DISPLAY TEXT
-            ['large_temperature', 'TEMPERATURE'],
-            ['large_humidity', 'HUMIDITY'],
-            ['stats', 'STATISTICS'],
-            ['network', 'NETWORK'],
-        ]
-        self.menu_display('DISPLAY MENU', items, select)
 
     # # # ############################### # # #
     # # # #####     DEVELOPMENT TESTS     # # #

@@ -11,7 +11,6 @@ from mods.tasks import TaskBot
 from mods.syslog import SYSLOG
 from mods.menu import OLED_Menu
 
-
 # # # ############################### # # #
 # # # #####      CLASS EXPANSION      # # #
 # # # ############################### # # #
@@ -29,6 +28,70 @@ class DATA(DataBank):
     def case_get(self, value):
         return self.cases[self.case_index(value)]
 
+    def case_check(self, case_name, *args, **kwargs):
+        case = self.case_get(case_name)
+        self.flag_check(case, *args, **kwargs)
+
+
+class MENU(OLED_Menu):
+
+    # # # ############################### # # #
+    # # # #####       LARGE DISPLAY       # # #
+    # # # ############################### # # #
+    
+    def large_temperature(self, select):
+        self.mode = 'large_temperature'
+        self.large_display('TEMPERATURE', data.signal['temperature'], 'O')
+
+    def large_humidity(self, select):
+        self.mode = 'large_humidity'
+        self.large_display('HUMIDITY', data.signal['relative_humidity'], '%')
+
+    # # # ############################### # # #
+    # # # #####     DISPLAY STATS         # # #
+    # # # ############################### # # #
+
+    def stats(self, select):
+        self.mode = 'stats'
+        self.set_controls('display_menu')
+        self.stats_display(
+            ['STATS', 16],
+            [f'TEMP:  {round(data.signal['temperature'], 1)}°', 18],
+            [f'HUMID: {round(data.signal['relative_humidity'], 1)}%', 18],
+        )
+    # # # ############################### # # #
+    # # # #####     SELECTABLE MENUS      # # #
+    # # # ############################### # # #
+
+    def main_menu(self, select):
+        self.mode = 'main_menu'
+        items = [
+            ['display_select', 'SELECT DISPLAY'],        # Display temp / humidity / stats
+            ['heat_menu', 'SET HEAT'],          # Set alerts
+            ['about', 'ABOUT'],                 # Version
+        ]
+        self.menu_display('MAIN MENU', items, select)
+
+    def display_select(self, select):
+        self.mode = 'display_menu'
+        items = [       # 0 - FUNCTION .. 1 - DISPLAY TEXT
+            ['large_temperature', 'TEMPERATURE'],
+            ['large_humidity', 'HUMIDITY'],
+            ['stats', 'STATISTICS'],
+            ['network', 'NETWORK'],
+        ]
+        self.menu_display('DISPLAY MENU', items, select)
+
+    def set_controls(self, selected_menu)
+        menu_items = {
+            'display_menu': [
+                'large_temperature',
+                'large_humidity',
+                'stats',
+                'network',
+            ],
+        }
+        return super().set_controls(menu_items, selected_menu)
 
 # # # ############################### # # #
 # # # #####       LOOPS               # # #
@@ -40,29 +103,34 @@ def scan_input(frequency=0.5):
         for signal in pressed:
             echo('Press detected on scan.')
             input_router(signal)
-            #menu.goto(signal)
+            #screen.button_press(signal)
             ######################### BUTTON ROUTER
             io.ghost_flag(signal)
             io.wake_up(signal)
     if io.wake:
         io.ghost_decay()
         frequency = 0.2
-
     return frequency
 
-
-def display(frequency=1):
+def refresh(frequency=1):
+    temperature, humidity = io.sensor.temperature, io.sensor.relative_humidity
     if io.wake:
         io.wake_check()
-    menu()
+    data.signal['temperature'] = temperature
+    data.signal['relative_humidity'] = humidity
+    case_check('Default Furnace', io.furnace_out, temperature)
+    display()
+    echo(data.signal)
 
 # DYNAMIC LOG
-def log_change(frequency=30):
+def log_change():
+    # CREATE LAST LOG
     echo('Log change')
 
 # PERIODIC LOG
 def log(frequency=30):
     echo('Log function called.')
+
     data.log('files/thermostat_log.json', {'tempc': io.sensor.temperature})
     data.log('files/thermostat_log.json', {'humid': io.sensor.relative_humidity})
 
@@ -98,7 +166,6 @@ def monitor(frequency=1, test=False):
         print(data)
 
     return frequency
-
 
 
 # # # ############################### # # #
@@ -141,13 +208,15 @@ def ensure(action, postpone=False, max_times=5, condition=True, *args):
 # # # #####       FUNCTIONS           # # #
 # # # ############################### # # #
 
-def check(case_name, value):
+def case_check(case_name, switch, value):
 
     case = data.case_get(case_name)
 
     flag = case['flag']
+    active = switch.value
 
-    boo = not flag['on']
+    #boo = not case['switch']
+    boo = not active
 
     if boo:                             # If furnace is [off]
         arg = value < case['on']       # TRUE if colder than [on] alert
@@ -158,14 +227,13 @@ def check(case_name, value):
         arg = not arg
 
     if arg:
-        if flag['check'] == boo:
-            flag['on'] = boo
-            io.turn(task, boo) #io.io[task].value = boo
-            
+        if case['flag'] == boo:
+            #active = boo
+            io.turn(switch, boo) #io[task].value = boo
         else:
-            flag['check'] = boo
+            case['flag'] = boo
     else:
-        flag['check'] = not boo
+        case['flag'] = not boo
 
 
 # # # ############################### # # #
@@ -251,7 +319,7 @@ io.digital_output('furnace_out', board.D17)
 io.si72021('sensor')
 io.ssd1306('oled', 128, 64)
 
-menu = OLED_Menu(io.oled, data)
+display = MENU(io.oled, data)
 
 tasks = TaskBot(data.TASKS)
 

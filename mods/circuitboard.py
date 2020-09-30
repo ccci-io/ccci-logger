@@ -78,9 +78,10 @@ class CircuitBoard(SwitchBoard):
         echo('CircuitBoard initialized.')
 
     # Assign digital output
-    def digital_output(self, signal, pin):
+    def digital_output(self, signal, pin, output=False):
         self.io[signal] = digitalio.DigitalInOut(pin)
         self.io[signal].direction = digitalio.Direction.OUTPUT
+        self.io[signal].value = output
 
     # Assign digital input
     def digital_input(self, signal, pin, scan=False):

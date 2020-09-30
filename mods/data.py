@@ -51,11 +51,30 @@ class DataBank:
         if action in self.hanged:
             del self.hanged[action]
 
-
     def indexOf(self, dicts, key, value):
         for i, d in enumerate(dicts):
             if d[key] == value:
                 return i
+
+    def flag_check(self, case, switch, value):
+
+        boo = not switch.value
+
+        if boo:                             # If furnace is [off]
+            arg = value < case['on']       # TRUE if colder than [on] alert
+        else:                               # If furnace is [on]
+            arg = value > case['off']      # TRUE if warmer than [off] alert
+
+        if case['on'] > case['off']:      # Correction for air conditioning
+            arg = not arg
+
+        if arg:
+            if case['flag'] == boo:
+                switch.value = boo
+            else:
+                case['flag'] = boo
+        else:
+            case['flag'] = not boo
 
 
     #def __repr__(self):
