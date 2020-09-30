@@ -50,6 +50,13 @@ class DataBank:
         if action in self.hanged:
             del self.hanged[action]
 
+
+    def indexOf(self, dicts, key, value):
+        for i, d in enumerate(dicts):
+            if d[key] == value:
+                return i
+
+
     #def __repr__(self):
     #    return json.dumps(self.flags)
 

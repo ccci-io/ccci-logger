@@ -7,7 +7,7 @@ import analogio
 import pulseio
 # pip install adafruit-motor
 from adafruit_motor import servo as adafruit_servo
-# pip install adafruit-si7021
+# pip install adafruit-si7021   # https://github.com/adafruit/Adafruit_CircuitPython_SI7021
 from adafruit_si7021 import SI7021
 # pip install adafruit-ssd1306
 from adafruit_ssd1306 import SSD1306_I2C

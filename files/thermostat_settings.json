@@ -1,10 +1,11 @@
 {
-    "alerts": {
-        "furnace": {
+    "cases":[
+        {
+            "name": "Default Furnace",
             "on": 22,
             "off": 23,
-            "sensor": "temperature",
-            "flag": false
+            "switch": false,
+            "flag": 0
         }
-    }
+    ]
 }
