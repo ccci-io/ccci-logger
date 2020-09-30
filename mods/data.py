@@ -4,6 +4,7 @@ import json
 class DataBank:
     hanged = {}     # 'action': 0
     settings = {}
+    signal = {}
 
     def __getattr__(self, key):
         return self.settings[key]

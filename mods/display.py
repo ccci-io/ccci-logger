@@ -35,15 +35,13 @@ class I2C_OLED:
 
 
 class OLED_Menu:
+    # # # ######### # MENU # ######### # # #
     
-    lang = 'ru'
     lang_dict = [
         ['en', 'ru'],
         ['TEMPERATURE', 'ТЕМПЕРАТУРА'],
         ['HUMIDITY', 'ВЛАЖНОСТЬ'],
     ]
-
-    # MENU
     mode = 'large_humidity'
     #mode = 'main_menu'
     select = 0
@@ -54,46 +52,56 @@ class OLED_Menu:
     x = 0
 
     def __init__(self, disp, data):
-
         self.oled = I2C_OLED(disp)
-        self.image = Image.new('1', (disp.width, disp.height))
+        self.image = Image.new('1', (self.oled.width, self.oled.height))
         self.draw = ImageDraw.Draw(self.image)
         self.clear()
-        
-        self.folder = data.folder
+        self.data = data
         #self.bottom = disp.height-self.top
 
     def __call__(self, *args, **kwargs):
-        return self.goto(*args, **kwargs)
+        return self.interface(*args, **kwargs)
 
-    def interface(self, mode=False, select=False):
+
+    def interface(self, mode=False, select=False, *args, **kwargs):
         if mode:
             self.mode = mode
         if select:
             self.select = select
-        getattr(self, self.mode)(self.select)
+        getattr(self, self.mode)(self.select, *args, **kwargs)
         
-    def goto(self, button):
-        self.interface(*self.controls[button])
+
+    def button_press(self, button):
+        try:
+            controls = self.controls[button]
+            self.interface(*controls)
+        except:
+            pass
+
+
+    def translate(self, val):
+        lang_index = self.lang_dict[0].index(self.data.lang)
+        if lang_index:
+            word_index = list(zip(*self.lang_dict))[0].index(val)
+            return self.lang_dict[word_index][lang_index]
+
+
+    # # # ############################### # # #
+    # # # #####     IMAGE OPERATIONS      # # #
+    # # # ############################### # # #
 
     def show(self):
         self.oled(self.image)
-
-    # # # ######### # LARGE DISPLAYS # ######### # # #
-
-    def text(self, val):
-        lang_index = self.lang_dict[0].index(self.lang)
-        if lang_index:
-            word_index = list(zip(*self.lang_dict))[0].index(val)
-            self.lang_dict[word_index][lang_index]
-
-        return self.lang_dict[val][self.lang]
-
+        
     def clear(self):
         self.draw.rectangle((0, 0, self.oled.width, self.oled.height), outline=0, fill=0)    # Clear image
 
     def font(self, px):
-        return ImageFont.truetype(self.folder + "res/Montserrat-Medium.ttf", px)
+        return ImageFont.truetype(self.data.folder + "res/Montserrat-Medium.ttf", px)
+
+    # # # ############################### # # #
+    # # # #####      BUTTON CONTROLS      # # #
+    # # # ############################### # # #
 
     def valid_select(self, select, items):
         if select >= len(items):
@@ -115,27 +123,32 @@ class OLED_Menu:
             'down': [items[menu][self.valid_select(self.select+1, items[menu])]],
             'left': [menu],
         }
+
+    # # # ############################### # # #
+    # # # #####       LARGE DISPLAY       # # #
+    # # # ############################### # # #
     
     def large_display(self, var, val, unit):
         self.clear()
-        self.draw.text((self.x, self.top+8), self.text(var), font=self.font(16), fill=255)
+        self.draw.text((self.x, self.top+8), self.translate(var), font=self.font(16), fill=255)
         self.draw.text((self.x, self.top+16), f"{round(val, 1)}", font=self.font(50), fill=255)
         self.draw.text((self.x+100, self.top+24), f"{unit}", font=self.font(25), fill=255)
         self.show()
         self.set_controls('display_menu')
-
-    def show_temp(self, select):
+    
+    def large_temperature(self, select):
         self.mode = 'large_temperature'
-        
+        self.large_display('TEMPERATURE', data.signal['temperature'], 'O')
 
-    def large_temperature(self, val):
-        self.large_display('TEMPERATURE', val, 'O')
-
-    def large_humidity(self, val):
+    def large_humidity(self, select):
         self.mode = 'large_humidity'
-        self.large_display('HUMIDITY', val, '%')
+        self.large_display('HUMIDITY', data.signal['relative_humidity'], '%')
 
-    def display_stats(self, *ls):
+    # # # ############################### # # #
+    # # # #####     DISPLAY STATS         # # #
+    # # # ############################### # # #
+
+    def stats_display(self, *ls):
         self.clear()
         height = 0
         for i in ls:
@@ -146,10 +159,10 @@ class OLED_Menu:
     def stats(self, select):
         self.mode = 'stats'
         self.set_controls('display_menu')
-        self.display_stats(
+        self.stats_display(
             ['STATS', 16],
-            [f'TEMP:  {round(self.data.sensors["temperature"], 1)}°', 18],
-            [f'HUMID: {round(self.data.sensors["humidity"], 1)}%', 18],
+            [f'TEMP:  {round(data.signal['temperature'], 1)}°', 18],
+            [f'HUMID: {round(data.signal['relative_humidity'], 1)}%', 18],
         )
 
     def network(self, select):
@@ -165,7 +178,7 @@ class OLED_Menu:
         Ram = subprocess.check_output(cmd, shell=True).decode("utf-8")
         #cmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%d GB  %s\", $3,$2,$5}'"
         #Disk = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        self.display_stats(
+        self.stats_display(
             ['NETWORK', 16],
             [f'IP: {IP}', 14],
             [f'CPU: {CPU}', 14],
@@ -173,9 +186,11 @@ class OLED_Menu:
         )
         #self.large('network', 12, '%')
 
-    # # # ######### # MENUS # ######### # # #
+    # # # ############################### # # #
+    # # # #####     SELECTABLE MENUS      # # #
+    # # # ############################### # # #
 
-    def menu(self, head, items, select):
+    def menu_display(self, head, items, select):
         # Loop select number if goes above the amount in the list
         if abs(select) == len(items):
             select = 0
@@ -186,8 +201,8 @@ class OLED_Menu:
             'right': [items[select][0], 0],
         }
         top, center, bottom = items[select-1][1], items[select][1], items[select+1][1]
+        self.clear()
         draw = self.draw
-        draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
         draw.text((self.x, self.top+8), head, font=self.font(16), fill=255)
         draw.text((self.x, self.top+24), top, font=self.font(12), fill=255)
         draw.text((self.x-2, self.top+34), center, font=self.font(20), fill=255)
@@ -196,24 +211,26 @@ class OLED_Menu:
 
     def main_menu(self, select):
         self.mode = 'main_menu'
-        select = ls[0]
         items = [
-            ['display_menu', 'DISPLAY'],        # Display temp / humidity / stats
+            ['display_select', 'SELECT DISPLAY'],        # Display temp / humidity / stats
             ['heat_menu', 'SET HEAT'],          # Set alerts
             ['about', 'ABOUT'],                 # Version
         ]
-        self.menu('MAIN MENU', items, select)
+        self.menu_display('MAIN MENU', items, select)
 
-    def display_menu(self, select):
+    def display_select(self, select):
         self.mode = 'display_menu'
-        select = ls[0]
         items = [       # 0 - FUNCTION .. 1 - DISPLAY TEXT
             ['large_temperature', 'TEMPERATURE'],
             ['large_humidity', 'HUMIDITY'],
             ['stats', 'STATISTICS'],
             ['network', 'NETWORK'],
         ]
-        self.menu('DISPLAY MENU', items, select)
+        self.menu_display('DISPLAY MENU', items, select)
+
+    # # # ############################### # # #
+    # # # #####     DEVELOPMENT TESTS     # # #
+    # # # ############################### # # #
 
     def test(self):
         self.boo = not self.boo

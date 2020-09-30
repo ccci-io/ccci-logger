@@ -100,13 +100,6 @@ def monitor(frequency=1, test=False):
     return frequency
 
 
-def operate(frequency=30, test=False):
-
-    check('Default Furnace')
-    data.log()
-
-    return frequency
-
 
 # # # ############################### # # #
 # # # #####       ROUTERS             # # #
