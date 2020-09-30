@@ -3,9 +3,22 @@ import json
 
 class DataBank:
     hanged = {}     # 'action': 0
+    settings = {}
+
+    def __getattr__(self, key):
+        return self.settings[key]
+
+    def __getitem__(self, key):
+        return self.settings[key]
 
     def __init__(self, folder):
         self.folder = folder
+
+    def __repr__(self):
+        return repr(self.settings)
+
+    def __call__(self, *args, **kwargs):
+        return self.load_settings(*args, **kwargs)
 
     def read(self, filepath):
         with open(self.folder + filepath) as f:
@@ -19,9 +32,6 @@ class DataBank:
         with open(self.folder + filepath, 'a') as f:
             json.dump(data, f)
             f.write(',\n')
-
-    def settings(self, *args, **kwargs):
-        return self.load_settings(*args, **kwargs)
 
     def load_settings(self, filepath):
         self.settings = self.read(filepath)
@@ -40,8 +50,8 @@ class DataBank:
         if action in self.hanged:
             del self.hanged[action]
 
-    def __repr__(self):
-        return json.dumps(self.flags)
+    #def __repr__(self):
+    #    return json.dumps(self.flags)
 
 
 class Remote(DataBank):

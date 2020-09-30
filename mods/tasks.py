@@ -38,7 +38,7 @@ class TaskBot:
 
     def time_to_minute(self, minute):
         dt_now = datetime.now()
-        dt = now.replace(minute=minute)
+        dt = dt_now.replace(minute=minute)
 
         if dt < dt_now:
             dt += timedelta(hours=1)

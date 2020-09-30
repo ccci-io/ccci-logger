@@ -1,0 +1,10 @@
+{
+    "alerts": {
+        "furnace": {
+            "on": 22,
+            "off": 23,
+            "sensor": "temperature",
+            "flag": false
+        }
+    }
+}
