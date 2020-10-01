@@ -293,6 +293,7 @@ echo('THERMOSTAT is started.')
 folder = (__file__)[0:-13]
 data = DATA(folder)
 data.load_settings('files/thermostat_settings.json')
+data.load_settings('files/thermostat_log.json')
 
 io = CircuitBoard()
 io.digital_input('touch_furnace', board.D18, scan=True)
