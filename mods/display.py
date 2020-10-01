@@ -68,7 +68,7 @@ class OLED_Menu:
             self.mode = mode
         if select:
             self.select = select
-        getattr(self, self.mode)(self.select, *args, **kwargs)
+        getattr(self, self.mode)(self.select)
         
 
     def translate(self, val):

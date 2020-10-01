@@ -16,11 +16,10 @@ from mods.menu import OLED_Menu
 # # # ############################### # # #
 
 class DATA(DataBank):
-    def log(self, filepath, data):
-        self.append(filepath, {
-            'timestamp': int(time.time()),
-            'data': data,
-        })
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.settings['temperature'] = 0
+        self.settings['relative_humidity'] = 0
 
     def case_index(self, value):
         return super().indexOf(self.cases, 'name', value)
@@ -32,6 +31,12 @@ class DATA(DataBank):
         case = self.case_get(case_name)
         self.flag_check(case, *args, **kwargs)
 
+    def log_change(self, fresh, stable, log_name):
+        change = self.custom_round(fresh, stable)
+        if change:
+            stable = change
+            log(data=stable)
+
 
 class MENU(OLED_Menu):
 
@@ -42,7 +47,7 @@ class MENU(OLED_Menu):
     def large_temperature(self, select):
         self.mode = 'large_temperature'
         self.large_display('TEMPERATURE', data.signal['temperature'], 'O')
-
+        
     def large_humidity(self, select):
         self.mode = 'large_humidity'
         self.large_display('HUMIDITY', data.signal['relative_humidity'], '%')
@@ -56,8 +61,8 @@ class MENU(OLED_Menu):
         self.set_controls('display_menu')
         self.stats_display(
             ['STATS', 16],
-            [f'TEMP:  {round(data.signal['temperature'], 1)}°', 18],
-            [f'HUMID: {round(data.signal['relative_humidity'], 1)}%', 18],
+            [f'TEMP:  {round(data.signal["temperature"], 1)}°', 18],
+            [f'HUMID: {round(data.signal["relative_humidity"], 1)}%', 18],
         )
     # # # ############################### # # #
     # # # #####     SELECTABLE MENUS      # # #
@@ -81,6 +86,10 @@ class MENU(OLED_Menu):
             ['network', 'NETWORK'],
         ]
         self.menu_display('DISPLAY MENU', items, select)
+
+    # # # ############################### # # #
+    # # # #####      BUTTON CONTROLS      # # #
+    # # # ############################### # # #
 
     def set_controls(self, selected_menu)
         menu_items = {
@@ -109,29 +118,64 @@ def scan_input(frequency=0.5):
             io.wake_up(signal)
     if io.wake:
         io.ghost_decay()
-        frequency = 0.2
-    return frequency
+    
+    time.sleep(frequency)
+    #return frequency
 
-def refresh(frequency=1):
-    temperature, humidity = io.sensor.temperature, io.sensor.relative_humidity
+def monitor(frequency=1):
+    # Check for changes in temperature and humidity and log
+    new_temperature = data.custom_round(io.sensor.temperature, data.temperature)
+    new_humidity = data.custom_round(io.sensor.relative_humidity, data.relative_humidity)
+ 
+    if new_temperature or new_humidity:
+        new_data = {}
+        if new_temperature:
+            data.temperature = new_temperature
+            new_data['tempc'] = data.temperature
+
+        if new_humidity:
+            data.relative_humidity = new_humidity
+            new_data['humid'] = data.relative_humidity
+
+        data.log(data=new_data)
+
+    # Check if furnace needs to be turned on based on the active_case
+    active_case = 'Default Furnace'
+    case_check(active_case, io.furnace_out, data.temperature)
+
+    # Refresh display
+    display()
+
+    # Execute scheduled tasks if in next 2 seconds
+    if tasks.get_next(seconds=2):
+        execute_tasks()
+
+    # If wake status is True than scan this many times
     if io.wake:
         io.wake_check()
-    data.signal['temperature'] = temperature
-    data.signal['relative_humidity'] = humidity
-    case_check('Default Furnace', io.furnace_out, temperature)
-    display()
-    echo(data.signal)
+        scan_every = 0.2
+    else:
+        scan_every = 0.5
 
-# DYNAMIC LOG
-def log_change():
-    # CREATE LAST LOG
-    echo('Log change')
+    for i in range(frequency/scan_every):
+        scan_input(scan_every)
+
+
+def execute_tasks():
+    echo(tasks.exe)
+    echo(tasks.ls)
+    # Run all actions found in tasks.exe list as global() functions from here.
+    for action in tasks.exe:
+        #globals()[action]()
+        action_router(action)
+        del tasks.exe[action]
+
 
 # PERIODIC LOG
-def log(frequency=30):
+def periodic_log(frequency=30):
     echo('Log function called.')
 
-    data.log('files/thermostat_log.json', {'tempc': io.sensor.temperature})
+    data.log('files/thermostat_log.json', {'tempc': io.sensor.temperature, 'humid': io.sensor.relative_humidity}, )
     data.log('files/thermostat_log.json', {'humid': io.sensor.relative_humidity})
 
     timeto = tasks.time_to_minute(5)
@@ -140,43 +184,16 @@ def log(frequency=30):
 
     return frequency
 
-def schedule(frequency=60):
-    pprint(tasks.exe)
-    pprint(tasks.ls)
-    # Run all actions found in tasks.exe list as global() functions from here.
-    if tasks.exe:
-        for action in tasks.exe:
-            #globals()[action]()
-            action_router(action)
-            del tasks.exe[action]
-
-    return tasks.get_next()
-
-def monitor(frequency=1, test=False):
-
-    data.sensors['temperature'] = round(sensor.temperature, 1)
-    data.sensors['humidity'] = round(sensor.relative_humidity, 1)
-
-    menu.interface()
-
-    if test:
-        menu.test()
-        print(f"\nTemperature: {round(sensor.temperature, 2)} C")
-        print(f"Humidity: {round(sensor.relative_humidity, 2)} %")
-        print(data)
-
-    return frequency
-
-
 # # # ############################### # # #
 # # # #####       ROUTERS             # # #
 # # # ############################### # # #
 
 def input_router(signal):
     if signal in ['touch_up', 'touch_down', 'touch_right', 'touch_left']:
-        menu.goto(signal)
+        display.button_press(signal)
     elif signal in ['touch_run']:
         action_router(signal)
+
 
 def action_router(action):
     args = []
@@ -203,38 +220,6 @@ def ensure(action, postpone=False, max_times=5, condition=True, *args):
         data.log_error(tasks.iso_now(), sys.exc_info()[0])
         tasks.ls.append([postpone, action])
         tasks.sort_ls()
-
-# # # ############################### # # #
-# # # #####       FUNCTIONS           # # #
-# # # ############################### # # #
-
-def case_check(case_name, switch, value):
-
-    case = data.case_get(case_name)
-
-    flag = case['flag']
-    active = switch.value
-
-    #boo = not case['switch']
-    boo = not active
-
-    if boo:                             # If furnace is [off]
-        arg = value < case['on']       # TRUE if colder than [on] alert
-    else:                               # If furnace is [on]
-        arg = value > case['off']      # TRUE if warmer than [off] alert
-
-    if case['on'] > case['off']:      # Correction for air conditioning
-        arg = not arg
-
-    if arg:
-        if case['flag'] == boo:
-            #active = boo
-            io.turn(switch, boo) #io[task].value = boo
-        else:
-            case['flag'] = boo
-    else:
-        case['flag'] = not boo
-
 
 # # # ############################### # # #
 # # # #####       ACTIONS             # # #

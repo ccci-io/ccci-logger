@@ -20,15 +20,25 @@ class TaskBot:
         self.schedule()
 
         # FILL SEQUENCE
-    def get_next(self):
+    def pop_next(self):
         dt_now = datetime.now()
         if not self.ls:
             self.schedule()
         ls_next = self.ls.pop(0)
         self.exe.append(ls_next[1])
         timeto = ls_next[0]-dt_now
-        seconds = int(timeto.total_seconds()) # timeto.seconds
+        seconds = timeto.total_seconds() # timeto.seconds
         return seconds
+
+    def get_next(self, **kwargs):
+        dt = self.time_from_now(**kwargs)
+        if not self.ls:
+            self.schedule()
+
+        if (dt - self.ls[0][0]) < 0:
+            ls_next = self.ls.pop(0)
+            self.exe.append(ls_next[1])
+        return self.exe
 
     def byDateTime(self, elem):
         return elem[0]
@@ -47,7 +57,7 @@ class TaskBot:
 
     def time_from_now(self, *args, **kwargs):
         dt_now = datetime.now()
-        dt_now + timedelta(*args, **kwargs)
+        return dt_now + timedelta(*args, **kwargs)
 
 
     def branch_task(self, task):

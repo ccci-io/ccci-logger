@@ -1,16 +1,24 @@
 import time
 import json
+from datetime import datetime
+
 
 class DataBank:
     hanged = {}     # 'action': 0
     settings = {}
-    signal = {}
+    #signal = {}
 
     def __getattr__(self, key):
         return self.settings[key]
 
+    def __setattr__(self, key, item):
+        self.self.setting[key] = item
+
     def __getitem__(self, key):
         return self.settings[key]
+
+    def __setitem__(self, key, item):
+        self.self.setting[key] = item
 
     def __init__(self, folder):
         self.folder = folder
@@ -41,6 +49,22 @@ class DataBank:
     def save_settings(self, filepath):
         self.write(filepath, self.settings)
 
+    def set_log(self, filepath):
+        self.settings['log_path'] = filepath
+        return filepath
+
+    def log(self, **kwargs):
+        self.append(self.settings['log_path'], {
+            'timestamp': int(time.time()),
+            kwargs,
+        })
+
+    def log_iso(self, **kwargs):
+        self.append(self.settings['log_path'], {
+            'timestamp': datetime.now().isoformat(sep=' T ', timespec='milliseconds'),
+            kwargs,
+        })
+
     def hang(self, action):
         if action not in self.hanged:
             self.hanged[action] = 0
@@ -55,6 +79,9 @@ class DataBank:
         for i, d in enumerate(dicts):
             if d[key] == value:
                 return i
+            
+        
+    ############# # # # STANDALONES # # # ##############
 
     def flag_check(self, case, switch, value):
 
@@ -75,6 +102,13 @@ class DataBank:
                 case['flag'] = boo
         else:
             case['flag'] = not boo
+
+    def custom_round(self, fresh, stable, change=0.07, decimals=1):
+        if abs(fresh - stable) > change:
+            return round(fresh, decimals)
+        else:
+            return False
+
 
 
     #def __repr__(self):
