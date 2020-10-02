@@ -34,7 +34,6 @@ class TaskBot:
         dt = self.time_from_now(**kwargs)
         if not self.ls:
             self.schedule()
-
         if (dt - self.ls[0][0]) < 0:
             ls_next = self.ls.pop(0)
             self.exe.append(ls_next[1])
@@ -70,18 +69,44 @@ class TaskBot:
         return task_on, task_off
 
 
+    #def check_state(self, arg_task):
+    #    task = arg_task.copy()
+    #    action, action_off = task.pop('action')
+    #    if 'isoweekday' in task:
+    #        isoweekday_on, isoweekday_off = task.pop('isoweekday')
+    #
+    #    dt_now = datetime.now()
+    #    task_on, task_off = self.branch_task(task)
+    #    dt_on, dt_off = dt_now.replace(**task_on), dt_now.replace(**task_off)
+    #    if dt_on <= dt_now < dt_off:
+    #        self.exe.append(action)
+    
     def check_state(self, arg_task):
         task = arg_task.copy()
-        action = task.pop('action')[0]
+        action, action_off = task.pop('action')
         if 'isoweekday' in task:
             isoweekday_on, isoweekday_off = task.pop('isoweekday')
 
         dt_now = datetime.now()
         task_on, task_off = self.branch_task(task)
         dt_on, dt_off = dt_now.replace(**task_on), dt_now.replace(**task_off)
+        if dt_on > dt_off:
+            if 'month' in task:
+                dt_off + timedelta(years=1)
+            elif 'day' in task:
+                dt_off + timedelta(months=1)
+            elif 'hour' in task:
+                dt_off + timedelta(days=1)
+            elif 'minute' in task:
+                dt_off + timedelta(hours=1)
+            elif 'second' in task:
+                dt_off + timedelta(minutes=1)
+            else:
+                print('ERROR IN CHECK STATE: dt_on > dt_off')
+
         if dt_on <= dt_now < dt_off:
             self.exe.append(action)
-        
+
 
     def schedule(self):
         self.now = datetime.now()

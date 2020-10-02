@@ -195,17 +195,18 @@ def input_router(signal):
         action_router(signal)
 
 
+# ACTION ROUTER AND ENSURE
+# Ensures that APIs are sent, if not log error and try again for 5 times.
 def action_router(action):
     args = []
     if '-' in action:
         ls = action.split('-')
         action, args = ls[0], ls[1:]
     
-    if action in ROUTER:
-        ensure(action, *args, **ROUTER[action])
+    if action in ENSURE:
+        ensure(action, *args, **ENSURE[action])
     else:
         globals()[action](*args)
-
 
 def ensure(action, postpone=False, max_times=5, condition=True, *args):
     print('Upload_data function called.')
@@ -262,22 +263,12 @@ TASKS = [
         #'isoweekday': 0,           # On <1-7> Monday. <0> for for every weekday. (DEFAULT=0)
     },
     {   # Turn on the modem on <daily:11-13>th hour of every day.
-        'action': ['modem-on', 'modem-off'],    # a '-' separates action function (modem) and action args (modem(on), modem(off))
-        'hour': [11, 13],
-    },
-    {
-        'action': 'upload_data',
-        'hour': 11,
-        'minute': 10,
-    },
-    {
-        'action': 'check_upload_data',
-        'hour': 11,
-        'minute': 20,
+        'action': ['Day', 'Away', 'Day', 'Sleep'],    # a '-' separates action function (modem) and action args (modem(on), modem(off))
+        'hour': [7, 9, 16, 21],
     },
 ]
 
-ROUTER = {
+ENSURE = {
     'upload_data': {
         'max_times': 5,
         'postpone': tasks.time_from_now(minutes=5),
