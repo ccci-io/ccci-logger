@@ -146,8 +146,8 @@ def monitor(frequency=1):
     # Refresh display
     display()
 
-    # Execute scheduled tasks if in next 2 seconds
-    if tasks.get_next(seconds=2):
+    # Execute scheduled tasks if in next 1 seconds
+    if tasks.get_next(seconds=1):
         execute_tasks()
 
     # If wake status is True than scan this many times
@@ -284,7 +284,7 @@ echo('THERMOSTAT is started.')
 folder = (__file__)[0:-13]
 data = DATA(folder)
 data.load_settings('files/thermostat_settings.json')
-data.load_settings('files/thermostat_log.json')
+data.set_log('files/thermostat_log.json')
 
 io = CircuitBoard()
 io.digital_input('touch_furnace', board.D18, scan=True)
@@ -302,6 +302,7 @@ tasks = TaskBot(data.TASKS)
 
 
 # CARBON COPY CONTROLLER INDUSTRIES
+# CARBON COPY CONTROLLER INTERFACES
 # COPY CRAB CONTROLLER INDUSTRIES
 # CHROME CRAB CONTROLLER INDUSTRIES
 # CREATIVE CRAB CONTROLLER

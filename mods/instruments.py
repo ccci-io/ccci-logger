@@ -1,7 +1,7 @@
 
-#from mods.syslog import SYSLOG
+from mods.syslog import SYSLOG
 
-#echo = SYSLOG(echo=True)
+echo = SYSLOG(echo=True)
 
 class Analog:
     def __init__(self, pin, const=65536):
@@ -45,3 +45,13 @@ class Servo:
                 self.servo.angle = input_angle
                 #return f'Servo position: {input_angle}'
                 #print('Servo position: ', input_angle)
+
+
+class PID:
+    def __init__(self):
+        echo('Initialized PID')
+
+
+class BLDC:
+    def __init__(self):
+        echo('Initialized Brusheless DC')
