@@ -4,15 +4,15 @@ from mods.syslog import SYSLOG
 echo = SYSLOG(echo=True)
 
 class Analog:
-    def __init__(self, pin, const=65536):
+    def __init__(self, pin, duty_cycle=65536):
         self.pin = pin
-        self.const = const
+        self.duty_cycle = duty_cycle
 
     def value(self, value=180):
-        return (self.pin.value * value) / self.const
+        return (self.pin.value * value) / self.duty_cycle
 
     def minmax(self, min_value=0, max_value=180):
-        return ((self.pin.value * (max_value-min_value)) + min_value) / self.const
+        return ((self.pin.value * (max_value-min_value)) + min_value) / self.duty_cycle
 
     def voltage(self, volt=3.3):
         return self.value(volt)
@@ -54,4 +54,4 @@ class PID:
 
 class BLDC:
     def __init__(self):
-        echo('Initialized Brusheless DC')
+        echo('Initialized Brushless DC')

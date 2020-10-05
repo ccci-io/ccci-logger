@@ -32,6 +32,9 @@ class SwitchBoard:
     def __getitem__(self, key):
         return self.io[key]
 
+    def __repr__(self):
+        return self.io
+
     # Switch digital output
     def turn(self, signal, boo):
         self.io[signal].value = boo
@@ -70,8 +73,8 @@ class SwitchBoard:
     def scan_add(self, signal):
         self.scan[signal] = 0
 
-    def __repr__(self):
-        return self.io
+    def duty_cycle(self, percent, duty_cycle=65535):
+        return int(percent / 100.0 * float(duty_cycle))
 
 class CircuitBoard(SwitchBoard):
     def __init__(self):
