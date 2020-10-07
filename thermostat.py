@@ -196,7 +196,7 @@ def input_router(signal):
 
 
 # ACTION ROUTER AND ENSURE
-# Ensures that APIs are sent, if not log error and try again for 5 times.
+# Ensures that APIs are sent, if not log error and try again for <5 times> and if <modem_is_on>.
 def action_router(action):
     args = []
     if '-' in action:

@@ -23,7 +23,6 @@ class SwitchBoard:
     scan = {}
     outbound = {}
     wake = False
-
     i2c = False
 
     def __getattr__(self, key):
