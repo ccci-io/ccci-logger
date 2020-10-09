@@ -17,65 +17,8 @@ from mods.syslog import SYSLOG
 
 echo = SYSLOG(True)
 
-class SwitchBoard:
-    env = 'circuitpython'
-    io = {}
-    scan = {}
-    outbound = {}
-    wake = False
-    i2c = False
 
-    def __getattr__(self, key):
-        return self.io[key]
-
-    def __getitem__(self, key):
-        return self.io[key]
-
-    def __repr__(self):
-        return self.io
-
-    # Switch digital output
-    def turn(self, signal, boo):
-        self.io[signal].value = boo
-
-    def scan_switch(self):
-        pressed = []
-        for signal in self.scan.keys():
-            #arg = self.io[signal].value > 40
-            if self.io[signal].value:
-                pressed.append(signal)
-        return pressed
-
-    def scan_touch(self, true_value=40):
-        pressed = []
-        for signal in self.scan.keys():
-            if self.io[signal].value > true_value:
-                pressed.append(signal)
-        return pressed
-
-    def ghost_flag(self, signal, ghost=3):
-        self.scan[signal] = ghost
-
-    def ghost_decay(self):
-        if sum(self.scan.values()):
-            for value in self.scan.values():
-                if value:
-                    value -= 1
-
-    def wake_up(self):
-        self.wake = time.time()
-
-    def wake_check(self):
-        if time.time() - self.wake > 30:
-            self.wake = False
-
-    def scan_add(self, signal):
-        self.scan[signal] = 0
-
-    def duty_cycle(self, percent, duty_cycle=65535):
-        return int(percent / 100.0 * float(duty_cycle))
-
-class CircuitBoard(SwitchBoard):
+class CircuitBoard(instruments.SwitchBoard):
     def __init__(self):
         echo('CircuitBoard initialized.')
 
