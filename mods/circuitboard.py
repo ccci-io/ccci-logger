@@ -12,8 +12,8 @@ from adafruit_si7021 import SI7021
 # pip install adafruit-ssd1306
 from adafruit_ssd1306 import SSD1306_I2C
 #local
-from mods import instruments
-from mods.syslog import SYSLOG
+from core import instruments
+from core.syslog import SYSLOG
 
 echo = SYSLOG(True)
 

@@ -1,9 +1,8 @@
 
-from mods.syslog import SYSLOG
+from core.syslog import SYSLOG
 import time
 
 echo = SYSLOG(echo=True)
-
 
 class SwitchBoard:
     io = {}

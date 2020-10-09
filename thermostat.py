@@ -5,11 +5,11 @@ import sys
 # pip install adafruit-blinka
 import board
 #local
-from mods.data import DataBank
+from core.data import DataBank
+from core.tasks import TaskBot
+from core.syslog import SYSLOG
 from mods.circuitboard import CircuitBoard
-from mods.tasks import TaskBot
-from mods.syslog import SYSLOG
-from mods.menu import OLED_Menu
+from mods.display import OLED_Menu
 
 # # # ############################### # # #
 # # # #####      CLASS EXPANSION      # # #
