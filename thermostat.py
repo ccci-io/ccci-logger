@@ -276,10 +276,8 @@ ENSURE = {
     }
 }
 
-
 echo = SYSLOG(True)
 echo('THERMOSTAT is started.')
-
 
 folder = (__file__)[0:-13]
 data = DATA(folder)

@@ -58,7 +58,7 @@ class CircuitBoard(instruments.SwitchBoard):
         self.io[signal] = SI7021(i2c)
         return self.io[signal]
 
-    def ssd1306(self, signal, width, height)
+    def ssd1306(self, signal, width, height):
         i2c = self.i2c_init()
         self.io[signal] = SSD1306_I2C(width, height)
 
