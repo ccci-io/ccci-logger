@@ -8,7 +8,7 @@ import board
 from core.data import DataBank
 from core.tasks import TaskBot
 from core.syslog import SYSLOG
-from mods.circuitboard import CircuitBoard
+from core.circuitboard import CircuitBoard
 from mods.display import OLED_Menu
 
 # # # ############################### # # #
@@ -194,7 +194,6 @@ def input_router(signal):
     elif signal in ['touch_run']:
         action_router(signal)
 
-
 # ACTION ROUTER AND ENSURE
 # Ensures that APIs are sent, if not log error and try again for <5 times> and if <modem_is_on>.
 def action_router(action):
@@ -293,6 +292,8 @@ io.digital_input('touch_right', board.D27, True)
 io.digital_output('furnace_out', board.D17)
 io.si72021('sensor')
 io.ssd1306('oled', 128, 64)
+
+io.scan
 
 display = MENU(io.oled, data)
 

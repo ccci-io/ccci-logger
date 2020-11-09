@@ -5,84 +5,105 @@ from datetime import datetime
 
 class DataBank:
     hanged = {}     # 'action': 0
-    settings = {}
-    #signal = {}
+    datafile = {}
 
-    def __getattr__(self, key):
-        return self.settings[key]
-
-    def __setattr__(self, key, item):
-        self.self.setting[key] = item
-
-    def __getitem__(self, key):
-        return self.settings[key]
-
-    def __setitem__(self, key, item):
-        self.self.setting[key] = item
-
+    # Set folder
     def __init__(self, folder):
         self.folder = folder
 
+    # GET *.key
+    def __getattr__(self, key):
+        return self.datafile[key]
+
+    # SET *.key
+    def __setattr__(self, key, item):
+        self.setting[key] = item
+
+    # GET *[key]
+    def __getitem__(self, key):
+        return self.datafile[key]
+
+    # SET *[key]
+    def __setitem__(self, key, item):
+        self.setting[key] = item
+
+    # Get dictionary from json datafile.
     def __repr__(self):
-        return repr(self.settings)
+        return repr(self.datafile)
 
+    # *.('filepath')                /// Load settings from filepath
     def __call__(self, *args, **kwargs):
-        return self.load_settings(*args, **kwargs)
+        return self.load(*args, **kwargs)
 
+    # *.read('filepath')            /// Read file from filepath
     def read(self, filepath):
         with open(self.folder + filepath) as f:
             return json.load(f)
 
+    # *.write('filepath', [data])   /// Overwrite file with data
     def write(self, filepath, data):
         with open(self.folder + filepath, 'w') as f:
             json.dump(data, f, indent=4)
 
+    # *.append('filepath', [data])  /// Append data to file
     def append(self, filepath, data):
         with open(self.folder + filepath, 'a') as f:
             json.dump(data, f)
             f.write(',\n')
 
-    def load_settings(self, filepath):
-        self.settings = self.read(filepath)
-        return self.settings
+    # *.load('filepath')    /// Load dictionary from json file
+    def load(self, filepath):
+        self.datafile = self.read(filepath)
+        self.datafile_filepath = filepath
+        return self.datafile
 
-    def save_settings(self, filepath):
-        self.write(filepath, self.settings)
+    # *.save('filepath')    /// Save dictionary to json file
+    def save(self, filepath=False):
+        if filepath:
+            self.write(self.folder, filepath)
+        else:
+            self.write(self.folder, self.datafile_filepath)
 
+    # Add filepath for logging
     def set_log(self, filepath):
-        self.settings['log_path'] = filepath
+        self.datafile['log_path'] = filepath
         return filepath
 
+    # Log data to set_log(filepath)
     def log(self, **kwargs):
-        self.append(self.settings['log_path'], {
+        self.append(self.datafile['log_path'], {
             'timestamp': int(time.time()),
-            kwargs,
+            **kwargs,
         })
 
+    # Log data with ISO date to set_log(filepath)
     def log_iso(self, **kwargs):
-        self.append(self.settings['log_path'], {
+        self.append(self.datafile['log_path'], {
             'timestamp': datetime.now().isoformat(sep=' T ', timespec='milliseconds'),
-            kwargs,
+            **kwargs,
         })
 
+    ############# # # # BUTTON OPERATIONS # # # ##############
+    
+    # Hand a file
     def hang(self, action):
         if action not in self.hanged:
             self.hanged[action] = 0
         self.hanged[action] += 1
         return self.hanged[action]
 
+    # Delete action from hanged
     def reset_hanged(self, action):
         if action in self.hanged:
             del self.hanged[action]
+
+    ############# # # # STANDALONES # # # ##############
 
     def indexOf(self, dicts, key, value):
         for i, d in enumerate(dicts):
             if d[key] == value:
                 return i
-            
-        
-    ############# # # # STANDALONES # # # ##############
-
+    
     def flag_check(self, case, switch, value):
 
         boo = not switch.value
@@ -109,11 +130,8 @@ class DataBank:
         else:
             return False
 
-
-
     #def __repr__(self):
     #    return json.dumps(self.flags)
-
 
 class Remote(DataBank):
 

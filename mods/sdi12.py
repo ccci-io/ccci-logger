@@ -73,7 +73,7 @@ class SDI12:
 
 class Arduino_USB(SDI12):
     ser = serial.Serial(
-        port, # '/dev/ttyS0', '/dev/ttyUSB0'
+        self.port, # '/dev/ttyS0', '/dev/ttyUSB0'
         9600,
         timeout=2,
         write_timeout=2,
@@ -91,7 +91,7 @@ class Arduino_USB(SDI12):
 class Sentek_USB(SDI12):
 
     ser = serial.Serial(
-        port, # '/dev/ttyS0', '/dev/ttyUSB0'
+        self.port, # '/dev/ttyS0', '/dev/ttyUSB0'
         1200,
         bytesize=serial.SEVENBITS,
         parity=serial.PARITY_EVEN,

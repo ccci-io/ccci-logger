@@ -87,8 +87,14 @@ class OLED_Menu:
     def clear(self):
         self.draw.rectangle((0, 0, self.oled.width, self.oled.height), outline=0, fill=0)    # Clear image
 
-    def font(self, px):
-        return ImageFont.truetype(self.data.folder + "files/Montserrat-Medium.ttf", px)
+    def font(self, px, select):
+        if select == 'logo':
+            filepath = "files/Montserrat-Medium.ttf"
+        elif select == 'code':
+            filepath = "files/Montserrat-Medium.ttf"
+        else:
+            filepath = "files/Montserrat-Medium.ttf"
+        return ImageFont.truetype(self.data.folder + filepath, px)
 
     # # # ############################### # # #
     # # # #####      BUTTON CONTROLS      # # #

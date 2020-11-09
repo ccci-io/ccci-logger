@@ -4,62 +4,71 @@ import time
 
 echo = SYSLOG(echo=True)
 
-class SwitchBoard:
-    io = {}
-    scan = {}
-    outbound = {}
+class ScanSwitch:
+    switches = {}
     wake = False
-    i2c = False
+    
+    def __init__(self, io, *args):
+        self.io = io
+        self.scan_add(*args)
 
-    def __getattr__(self, key):
-        return self.io[key]
-
-    def __getitem__(self, key):
-        return self.io[key]
-
-    def __repr__(self):
-        return self.io
-
-    # Switch digital output
-    def turn(self, signal, boo):
-        self.io[signal].value = boo
-
-    def scan_switch(self):
+    def scan_switch(self, scan):
         pressed = []
-        for signal in self.scan.keys():
+        for signal in scan.keys():
             #arg = self.io[signal].value > 40
-            if self.io[signal].value:
+            if self.io[signal].value():
                 pressed.append(signal)
-        return pressed
+        return scan, pressed
 
-    def scan_touch(self, true_value=40):
+    def scan_touch(self, scan, trigger=200):
         pressed = []
-        for signal in self.scan.keys():
-            if self.io[signal].value > true_value:
+        for signal in scan.keys():
+            if self.io[signal].read() < trigger:
                 pressed.append(signal)
-        return pressed
+        return scan, pressed
 
-    def ghost_flag(self, signal, ghost=3):
-        self.scan[signal] = ghost
+    def ghost_flag(self, signal, ghost=False):
+        if ghost:
+            self.switches[signal] = ghost
+        else:
+            try:
+                return self.switches[signal]
+            except:
+                return 0
 
-    def ghost_decay(self):
-        if sum(self.scan.values()):
-            for value in self.scan.values():
+    def ghost_decay(self, scan):
+        print(sum(scan.values()))
+        if sum(scan.values()):
+            for key, value in scan.items():
                 if value:
-                    value -= 1
+                    scan[key] -= 1
 
-    def wake_up(self):
-        self.wake = time.time()
+    def detect_press(self, scan, pressed_d, wake):
+        pressed = []
+        if pressed_d:
+            for signal in pressed_d:
+                print('Press detected on scan.' + repr(pressed))
+                pressed.append(signal)
+                self.wake_up(wake)
+                self.ghost_flag(signal, 2)
+                
+        if wake:
+            self.ghost_decay(scan)
+            self.wake_check(wake)
+            
+        return pressed, wake
 
-    def wake_check(self):
-        if time.time() - self.wake > 30:
-            self.wake = False
+    def wake_up(self, wake):
+        wake = time.time()
 
-    def scan_add(self, signal):
-        self.scan[signal] = 0
+    def wake_check(self, wake):
+        if time.time() - wake > 30:
+            wake = False
 
-    def duty_cycle(self, percent, duty_cycle=65535):
-        return int(percent / 100.0 * float(duty_cycle))
+    def scan_add(self, *args):
+        for signal in args:
+            self.switches[signal] = 0
+
 
 class Analog:
     def __init__(self, pin, duty_cycle=65536):
@@ -78,7 +87,29 @@ class Analog:
     def __repr__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
-# CircuitPython vs MicroPython
+class Accel:
+    def __init__(self, signal):
+        self.signal = signal
+        #echo('Servo assigned ')
+
+    def __call__(self):
+        return self.raw()
+    
+    def raw(self):
+        return self.signal.acceleration
+
+    def angle(self):
+        output = []
+        inputs = self.g()
+        for val in inputs:
+            output.append(val * 90)
+        return output
+
+    def g(self):
+        output = []
+        for val in self.signal.acceleration:
+            output.append(val / 9.806)
+        return output
 
 class Servo:
     servo_position = 90.0
@@ -222,13 +253,65 @@ def test_pid(P = 0.2,  I = 0.0, D= 0.0, L=100):
     pid.setSampleTime(0.01)
 
 
-# vidy.ca
-# vidu.ca
-# movid.ca
-# vidos.ca
-# povod.ca
-# pivid.ca
 
-# viden.ca
-# qovid.ca
-# dovop.ca
+"""
+class SwitchBoard:
+    io = {}
+    scan = {}
+    outbound = {}
+    wake = False
+    i2c = False
+
+    def __getattr__(self, key):
+        return self.io[key]
+
+    def __setattr__(self, key, value):
+        self.io[key] = value
+
+    def __getitem__(self, key):
+        return self.io[key]
+
+    def __setitem__(self, key, value):
+        self.io[key] = value
+
+    def __repr__(self):
+        return self.io
+
+    def scan_switch(self):
+        pressed = []
+        for signal in self.scan.keys():
+            #arg = self.io[signal].value > 40
+            if self.io[signal].value:
+                pressed.append(signal)
+        return pressed
+
+    def scan_touch(self, true_value=40):
+        pressed = []
+        for signal in self.scan.keys():
+            if self.io[signal].value > true_value:
+                pressed.append(signal)
+        return pressed
+
+    def ghost_flag(self, signal, ghost=3):
+        self.scan[signal] = ghost
+
+    def ghost_decay(self):
+        if sum(self.scan.values()):
+            for value in self.scan.values():
+                if value:
+                    value -= 1
+
+    def wake_up(self):
+        self.wake = time.time()
+
+    def wake_check(self):
+        if time.time() - self.wake > 30:
+            self.wake = False
+
+    def scan_add(self, *args):
+        for signal in args:
+            self.scan[signal] = 0
+        
+    def duty_cycle(self, percent, duty_cycle=65535):
+        return int(percent / 100.0 * float(duty_cycle))
+"""
