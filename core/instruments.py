@@ -111,6 +111,15 @@ class Accel:
             output.append(val / 9.806)
         return output
 
+    def shake(self, shake_threshold=15):
+        return self.signal.shake(shake_threshold)
+
+    def tap(self, *args, **kwargs): #2, 60 = double tap
+        return self.signal.set_tap(*args, **kwargs)
+
+    # Set range of accelerometer (can be RANGE_2_G, RANGE_4_G, RANGE_8_G or RANGE_16_G).
+    #lis3dh.range = adafruit_lis3dh.RANGE_2_G
+
 class Servo:
     servo_position = 90.0
     check = False
