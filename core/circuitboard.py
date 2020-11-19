@@ -17,7 +17,7 @@ import adafruit_lis3dh
 
 #local
 from core import instruments
-from core.xbox_js import Joystick
+#from core.xbox_js import Joystick
 
 # SEPARATE CLASS FOR BUTTONS
 
@@ -108,7 +108,7 @@ class CircuitBoard(SwitchBoard):
         self.io[signal] = instruments.Accel(adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1))
 
     def xbox_input(self, signal):
-        self.io[signal] = Joystick()
+        self.io[signal] = instruments.Joystick()
 
 
 if __name__ == "__main__":

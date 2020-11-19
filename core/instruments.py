@@ -73,6 +73,9 @@ class Analog:
         self.pin = pin
         self.duty_cycle = duty_cycle
 
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)
+
     def value(self, value=1):
         return (self.pin.value * value) / self.duty_cycle
 
@@ -124,7 +127,10 @@ class Servo:
 
     def __init__(self, servo):
         self.servo = servo
-    
+
+    def __call__(self, *args, **kwargs):
+        return self.instant_angle(*args, **kwargs)
+
     def instant_angle(self, input_angle):
         if abs(input_angle - self.servo_position) > 1:
             self.servo_position, self.servo.angle = [input_angle]*2
@@ -284,10 +290,10 @@ class Joystick:
                 if button:
                     self.button_states[button] = value
                     if value:
-                        print("%s pressed" % (button))
+                        #print("%s pressed" % (button))
                         return button, True
                     else:
-                        print("%s released" % (button))
+                        #print("%s released" % (button))
                         return button, False
 
             if type & 0x02:
@@ -295,15 +301,16 @@ class Joystick:
                 if axis:
                     fvalue = value / 32767.0
                     self.axis_states[axis] = fvalue
-                    print("%s: %.3f" % (axis, fvalue))
-                    return axis, fvalue
+                    #print("%s: %.3f" % (axis, fvalue))
+                    return axis, round(fvalue, 3)
 
     def __call__(self):
         return self.scan()
 
 
-
-
+class BLDC:
+    def __init__(self):
+        print('Initialized Brushless DC')
 
 
 class PID:
@@ -398,10 +405,6 @@ class PID:
         self.sample_time = sample_time
 
 
-class BLDC:
-    def __init__(self):
-        print('Initialized Brushless DC')
-
 
 def test_pid(P = 0.2,  I = 0.0, D= 0.0, L=100):
     """Self-test PID class
@@ -421,67 +424,3 @@ def test_pid(P = 0.2,  I = 0.0, D= 0.0, L=100):
 
     pid.SetPoint=0.0
     pid.setSampleTime(0.01)
-
-
-
-"""
-class SwitchBoard:
-    io = {}
-    scan = {}
-    outbound = {}
-    wake = False
-    i2c = False
-
-    def __getattr__(self, key):
-        return self.io[key]
-
-    def __setattr__(self, key, value):
-        self.io[key] = value
-
-    def __getitem__(self, key):
-        return self.io[key]
-
-    def __setitem__(self, key, value):
-        self.io[key] = value
-
-    def __repr__(self):
-        return self.io
-
-    def scan_switch(self):
-        pressed = []
-        for signal in self.scan.keys():
-            #arg = self.io[signal].value > 40
-            if self.io[signal].value:
-                pressed.append(signal)
-        return pressed
-
-    def scan_touch(self, true_value=40):
-        pressed = []
-        for signal in self.scan.keys():
-            if self.io[signal].value > true_value:
-                pressed.append(signal)
-        return pressed
-
-    def ghost_flag(self, signal, ghost=3):
-        self.scan[signal] = ghost
-
-    def ghost_decay(self):
-        if sum(self.scan.values()):
-            for value in self.scan.values():
-                if value:
-                    value -= 1
-
-    def wake_up(self):
-        self.wake = time.time()
-
-    def wake_check(self):
-        if time.time() - self.wake > 30:
-            self.wake = False
-
-    def scan_add(self, *args):
-        for signal in args:
-            self.scan[signal] = 0
-        
-    def duty_cycle(self, percent, duty_cycle=65535):
-        return int(percent / 100.0 * float(duty_cycle))
-"""
