@@ -17,9 +17,7 @@ import adafruit_lis3dh
 
 #local
 from core import instruments
-from core.syslog import SYSLOG
-
-echo = SYSLOG(True)
+from core.xbox_js import Joystick
 
 # SEPARATE CLASS FOR BUTTONS
 
@@ -60,7 +58,7 @@ class SwitchBoard:
 
 class CircuitBoard(SwitchBoard):
     def __init__(self):
-        echo('CircuitBoard initialized.')
+        print('CircuitBoard initialized.')
 
     # Switch digital output
     def turn(self, signal, boo):
@@ -107,7 +105,10 @@ class CircuitBoard(SwitchBoard):
     def lis3dh(self, signal, int_pin):
         i2c = self.i2c_init()
         int1 = digitalio.DigitalInOut(int_pin)  # Set this to the correct pin for the interrupt!
-        self.io[signal] = Accel(adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1))
+        self.io[signal] = instruments.Accel(adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1))
+
+    def xbox_input(self, signal):
+        self.io[signal] = Joystick()
 
 
 if __name__ == "__main__":

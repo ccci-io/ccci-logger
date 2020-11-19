@@ -62,7 +62,6 @@ class OLED_Menu:
     def __call__(self, *args, **kwargs):
         return self.interface(*args, **kwargs)
 
-
     def interface(self, mode=False, select=False):
         if mode:
             self.mode = mode
@@ -70,7 +69,6 @@ class OLED_Menu:
             self.select = select
         getattr(self, self.mode)(self.select)
         
-
     def translate(self, val):
         lang_index = self.lang_dict[0].index(self.data.lang)
         if lang_index:
@@ -89,9 +87,9 @@ class OLED_Menu:
 
     def font(self, px, select):
         if select == 'logo':
-            filepath = "files/Montserrat-Medium.ttf"
+            filepath = "files/Orbitron-Black.ttf"
         elif select == 'code':
-            filepath = "files/Montserrat-Medium.ttf"
+            filepath = "files/RobotoMono-Medium.ttf"
         else:
             filepath = "files/Montserrat-Medium.ttf"
         return ImageFont.truetype(self.data.folder + filepath, px)

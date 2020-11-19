@@ -129,8 +129,6 @@ class TaskBot:
         
         self.sort_ls()
                     
-
-
     def iterate_dt(self, task, action, on, add):
         dt_now = datetime.now()
         replace = {}
