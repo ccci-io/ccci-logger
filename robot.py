@@ -19,8 +19,10 @@ from core.circuitboard import CircuitBoard
 # # # ############################### # # #
 
 def main_loop(frequency=0):
-    #js_router(io.xbox())
-    print(io.xbox())
+    js = io.xbox() # js = joystick input
+    if js:
+        print(js)
+        #js_router(js)
     time.sleep(frequency)
     #return frequency
 
