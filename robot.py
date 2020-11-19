@@ -24,12 +24,16 @@ def main_loop(frequency=0):
     time.sleep(frequency)
     #return frequency
 
+# # # ############################### # # #
+# # # #####       ROUTERS             # # #
+# # # ############################### # # #
+
 def js_router(key, value):
     #if key in ['touch_up', 'touch_down', 'touch_right', 'touch_left']:
     if key == 'x':
         io.servo(value*180)
     elif key == 'y':
-        pass 
+        pass
 
 
 folder = (__file__)[0:-13]
