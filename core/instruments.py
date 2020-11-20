@@ -2,72 +2,6 @@ import time
 import os, struct, array
 from fcntl import ioctl
 
-class ScanSwitch:
-    switches = {}
-    wake = False
-    
-    def __init__(self, io, *args):
-        self.io = io
-        self.scan_add(*args)
-
-    def scan_switch(self, scan):
-        pressed = []
-        for signal in scan.keys():
-            #arg = self.io[signal].value > 40
-            if self.io[signal].value():
-                pressed.append(signal)
-        return scan, pressed
-
-    def scan_touch(self, scan, trigger=200):
-        pressed = []
-        for signal in scan.keys():
-            if self.io[signal].read() < trigger:
-                pressed.append(signal)
-        return scan, pressed
-
-    def ghost_flag(self, signal, ghost=False):
-        if ghost:
-            self.switches[signal] = ghost
-        else:
-            try:
-                return self.switches[signal]
-            except:
-                return 0
-
-    def ghost_decay(self, scan):
-        print(sum(scan.values()))
-        if sum(scan.values()):
-            for key, value in scan.items():
-                if value:
-                    scan[key] -= 1
-
-    def detect_press(self, scan, pressed_d, wake):
-        pressed = []
-        if pressed_d:
-            for signal in pressed_d:
-                print('Press detected on scan.' + repr(pressed))
-                pressed.append(signal)
-                self.wake_up(wake)
-                self.ghost_flag(signal, 2)
-                
-        if wake:
-            self.ghost_decay(scan)
-            self.wake_check(wake)
-            
-        return pressed, wake
-
-    def wake_up(self, wake):
-        wake = time.time()
-
-    def wake_check(self, wake):
-        if time.time() - wake > 30:
-            wake = False
-
-    def scan_add(self, *args):
-        for signal in args:
-            self.switches[signal] = 0
-
-
 class Analog:
     def __init__(self, pin, duty_cycle=65536):
         self.pin = pin
@@ -91,7 +25,7 @@ class Analog:
 class Accel:
     def __init__(self, signal):
         self.signal = signal
-        #echo('Servo assigned ')
+        #echo('Servo assigned')
 
     def __call__(self):
         return self.raw()
@@ -307,6 +241,72 @@ class Joystick:
     def __call__(self):
         return self.scan()
 
+
+
+class ScanSwitch:
+    switches = {}
+    wake = False
+    
+    def __init__(self, io, *args):
+        self.io = io
+        self.scan_add(*args)
+
+    def scan_switch(self, scan):
+        pressed = []
+        for signal in scan.keys():
+            #arg = self.io[signal].value > 40
+            if self.io[signal].value():
+                pressed.append(signal)
+        return scan, pressed
+
+    def scan_touch(self, scan, trigger=200):
+        pressed = []
+        for signal in scan.keys():
+            if self.io[signal].read() < trigger:
+                pressed.append(signal)
+        return scan, pressed
+
+    def ghost_flag(self, signal, ghost=False):
+        if ghost:
+            self.switches[signal] = ghost
+        else:
+            try:
+                return self.switches[signal]
+            except:
+                return 0
+
+    def ghost_decay(self, scan):
+        print(sum(scan.values()))
+        if sum(scan.values()):
+            for key, value in scan.items():
+                if value:
+                    scan[key] -= 1
+
+    def detect_press(self, scan, pressed_d, wake):
+        pressed = []
+        if pressed_d:
+            for signal in pressed_d:
+                print('Press detected on scan.' + repr(pressed))
+                pressed.append(signal)
+                self.wake_up(wake)
+                self.ghost_flag(signal, 2)
+                
+        if wake:
+            self.ghost_decay(scan)
+            self.wake_check(wake)
+            
+        return pressed, wake
+
+    def wake_up(self, wake):
+        wake = time.time()
+
+    def wake_check(self, wake):
+        if time.time() - wake > 30:
+            wake = False
+
+    def scan_add(self, *args):
+        for signal in args:
+            self.switches[signal] = 0
 
 class BLDC:
     def __init__(self):
