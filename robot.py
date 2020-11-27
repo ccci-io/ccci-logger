@@ -7,7 +7,6 @@ import board
 from core.tasks import TaskBot
 from core.circuitboard import CircuitBoard
 
-
 # # # ############################### # # #
 # # # #####      CLASS EXPANSION      # # #
 # # # ############################### # # #
@@ -51,4 +50,4 @@ if __name__ == "__main__":
 
 # CARBON COPY CONTROLLER INTERFACES
 # COMPUTER CHIP CONTROLLER INTERFACES
-# CONTROLLER CHIP & COMPUTER COMMON COMMUNICATE CONNECT CHANNEL COMMAND CHIEF
+# CONTROLLER CHIP & COMPUTER COMMON COMMUNICATE CONNECT CHANNEL COMMAND CHIEF CONDUCTOR

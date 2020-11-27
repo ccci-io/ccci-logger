@@ -20,6 +20,16 @@ from core import instruments
 #from core.xbox_js import Joystick
 
 # SEPARATE CLASS FOR BUTTONS
+ 
+
+while True:
+    for i in range(100):
+        # PWM LED up and down
+        if i < 50:
+            led.duty_cycle = int(i * 2 * 65535 / 100)  # Up
+        else:
+            led.duty_cycle = 65535 - int((i - 50) * 2 * 65535 / 100)  # Down
+        time.sleep(0.01)
 
 class SwitchBoard:
     io = {}
@@ -84,6 +94,10 @@ class CircuitBoard(SwitchBoard):
     def servo_output(self, signal, pin, *args, **kwargs):
         pwm = pulseio.PWMOut(pin, *args, **kwargs)
         self.io[signal] = instruments.Servo(adafruit_servo.Servo(pwm))
+        return self.io[signal]
+
+    def pwm_output(self, signal, pin, *args, **kwargs):
+        self.io[signal] = pulseio.PWMOut(pin, *args, **kwargs)
         return self.io[signal]
 
     ### INITIALIZE PERIFERALS
