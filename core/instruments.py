@@ -55,6 +55,19 @@ class Accel:
     # Set range of accelerometer (can be RANGE_2_G, RANGE_4_G, RANGE_8_G or RANGE_16_G).
     #lis3dh.range = adafruit_lis3dh.RANGE_2_G
 
+class PWM:
+    def __init__(self, pwm):
+        self.pwm = pwm
+
+    def __call__(self, *args, **kwargs):
+        self.absolute(*args, **kwargs)
+
+    def absolute(self, val):
+        self.duty_cycle(val*(65535))
+
+    def duty_cycle(self, val):
+        self.pwm.duty_cycle = int(val)
+
 class Servo:
     servo_position = 90.0
     check = False
@@ -70,7 +83,7 @@ class Servo:
             self.servo_position, self.servo.angle = [input_angle]*2
             print('Servo position: ', int(input_angle))
 
-    def stable_angle(self, input_angle): # DONT ADJUST UNTIL INPUT STARTS CHANGING
+    def stable_angle(self, input_angle): # DONT ADJUST UNTIL INPUT STOPS CHANGING
         if abs(input_angle - self.servo_position) > 1:
             self.check = True
             self.servo_position = input_angle
@@ -79,6 +92,7 @@ class Servo:
                 self.check = False
                 self.servo.angle = input_angle
 
+
 class Joystick:
     # We'll store the states here.
     axis_states = {}
@@ -86,13 +100,13 @@ class Joystick:
 
     # These constants were borrowed from linux/input.h
     axis_names = {
-        0x00 : 'x',
-        0x01 : 'y',
-        0x02 : 'z',
+        0x00 : 'lx_axis',
+        0x01 : 'ly_axis',
+        0x02 : 'rx_axis',
         0x03 : 'rx',
         0x04 : 'ry',
-        0x05 : 'rz',
-        0x06 : 'trottle',
+        0x05 : 'ry_axis',
+        0x06 : 'throttle',
         0x07 : 'rudder',
         0x08 : 'wheel',
         0x09 : 'gas',

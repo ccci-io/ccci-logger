@@ -4,25 +4,39 @@ import time
 import board # https://github.com/adafruit/Adafruit_Blinka/blob/master/src/adafruit_blinka/board/raspberrypi/raspi_40pin.py
 import busio
 import digitalio
-import analogio
+#import analogio
 import pulseio
 
-# pip install adafruit-motor
-from adafruit_motor import servo as adafruit_servo
+# pip3 install adafruit-circuitpython-motor
+try:
+    from adafruit_motor import servo as adafruit_servo
+except:
+    'Missing library:\npip3 install adafruit-circuitpython-motor'
+
 # pip install adafruit-si7021   # https://github.com/adafruit/Adafruit_CircuitPython_SI7021
-from adafruit_si7021 import SI7021
+try:
+    from adafruit_si7021 import SI7021
+except:
+    'Missing library:\npip3 install ?'
+
 # pip install adafruit-ssd1306
-from adafruit_ssd1306 import SSD1306_I2C
-import adafruit_lis3dh
+try:
+    from adafruit_ssd1306 import SSD1306_I2C
+except:
+    'Missing library:\npip3 install ?'
+
+try:
+    import adafruit_lis3dh
+except:
+    'Missing library:\npip3 install ?'
 
 #local
 from core import instruments
 #from core.xbox_js import Joystick
 
 # SEPARATE CLASS FOR BUTTONS
- 
 
-while True:
+def led(led):
     for i in range(100):
         # PWM LED up and down
         if i < 50:
@@ -87,9 +101,9 @@ class CircuitBoard(SwitchBoard):
         self.io[signal].pull = digitalio.Pull.DOWN
         return self.io[signal]
 
-    def analog_input(self, signal, pin):
-        self.io[signal] = instruments.Analog(analogio.AnalogIn(pin))
-        return self.io[signal]
+    #def analog_input(self, signal, pin):
+    #    self.io[signal] = instruments.Analog(analogio.AnalogIn(pin))
+    #    return self.io[signal]
 
     def servo_output(self, signal, pin, *args, **kwargs):
         pwm = pulseio.PWMOut(pin, *args, **kwargs)
@@ -97,7 +111,7 @@ class CircuitBoard(SwitchBoard):
         return self.io[signal]
 
     def pwm_output(self, signal, pin, *args, **kwargs):
-        self.io[signal] = pulseio.PWMOut(pin, *args, **kwargs)
+        self.io[signal] = instruments.PWM(pulseio.PWMOut(pin, *args, **kwargs))
         return self.io[signal]
 
     ### INITIALIZE PERIFERALS
