@@ -1,34 +1,11 @@
 import time
+import sys
 
-# pip install adafruit-blinka
+# pip3 install adafruit-blinka
 import board # https://github.com/adafruit/Adafruit_Blinka/blob/master/src/adafruit_blinka/board/raspberrypi/raspi_40pin.py
 import busio
 import digitalio
-#import analogio
 import pulseio
-
-# pip3 install adafruit-circuitpython-motor
-try:
-    from adafruit_motor import servo as adafruit_servo
-except:
-    'Missing library:\npip3 install adafruit-circuitpython-motor'
-
-# pip install adafruit-si7021   # https://github.com/adafruit/Adafruit_CircuitPython_SI7021
-try:
-    from adafruit_si7021 import SI7021
-except:
-    'Missing library:\npip3 install ?'
-
-# pip install adafruit-ssd1306
-try:
-    from adafruit_ssd1306 import SSD1306_I2C
-except:
-    'Missing library:\npip3 install ?'
-
-try:
-    import adafruit_lis3dh
-except:
-    'Missing library:\npip3 install ?'
 
 #local
 from core import instruments
@@ -51,6 +28,8 @@ class SwitchBoard:
     scan = False
     i2c = False
     spi = False
+    uart = False
+    # TRY i2c?
 
     # GET *.key
     def __getattr__(self, key):
@@ -102,10 +81,12 @@ class CircuitBoard(SwitchBoard):
         return self.io[signal]
 
     #def analog_input(self, signal, pin):
+    #    import analogio
     #    self.io[signal] = instruments.Analog(analogio.AnalogIn(pin))
     #    return self.io[signal]
 
     def servo_output(self, signal, pin, *args, **kwargs):
+        from adafruit_motor import servo as adafruit_servo # pip3 install adafruit-motor
         pwm = pulseio.PWMOut(pin, *args, **kwargs)
         self.io[signal] = instruments.Servo(adafruit_servo.Servo(pwm))
         return self.io[signal]
@@ -116,24 +97,36 @@ class CircuitBoard(SwitchBoard):
 
     ### INITIALIZE PERIFERALS
     
+    def uart_init(self):
+        if not self.uart:
+            self.uart = busio.I2C(board.SCL, board.SDA)
+
+    def spi_init(self):
+        if not self.spi:
+            self.spi = busio.I2C(board.SCL, board.SDA)
+
     def i2c_init(self):
+        #import busio
         if not self.i2c:
             self.i2c = busio.I2C(board.SCL, board.SDA)
-        return self.i2c
 
     def si7021(self, signal):
-        i2c = self.i2c_init()
-        self.io[signal] = SI7021(i2c)
+        from adafruit_si7021 import SI7021  # pip3 install adafruit-si7021
+        # https://github.com/adafruit/Adafruit_CircuitPython_SI7021
+        self.i2c_init()
+        self.io[signal] = SI7021(self.i2c)
         return self.io[signal]
 
     def ssd1306(self, signal, width, height):
-        i2c = self.i2c_init()
-        self.io[signal] = SSD1306_I2C(width, height, i2c)
+        from adafruit_ssd1306 import SSD1306_I2C # pip3 install adafruit-ssd1306
+        self.i2c_init()
+        self.io[signal] = SSD1306_I2C(width, height, self.i2c)
 
     def lis3dh(self, signal, int_pin):
-        i2c = self.i2c_init()
+        from adafruit_lis3dh import LIS3DH_I2C  # pip3 install adafruit_lis3dh ??
+        self.i2c_init()
         int1 = digitalio.DigitalInOut(int_pin)  # Set this to the correct pin for the interrupt!
-        self.io[signal] = instruments.Accel(adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1))
+        self.io[signal] = instruments.Accelerometer(LIS3DH_I2C(self.i2c, int1=int1))
 
     def xbox_input(self, signal):
         self.io[signal] = instruments.Joystick()

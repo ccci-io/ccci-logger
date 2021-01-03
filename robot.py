@@ -5,7 +5,7 @@ import sys
 import board
 #local
 from core.tasks import TaskBot
-from core.circuitboard import CircuitBoard
+from core.signal import CircuitBoard
 
 # # # ############################### # # #
 # # # #####      CLASS EXPANSION      # # #

@@ -8,7 +8,7 @@ import board
 from core.data import DataBank
 from core.tasks import TaskBot
 from core.syslog import SYSLOG
-from core.circuitboard import CircuitBoard
+from core.signal import CircuitBoard
 from mods.display import OLED_Menu
 
 # # # ############################### # # #

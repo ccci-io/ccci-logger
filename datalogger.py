@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
+try:
+    import board
+except:
+    sys.exec('pip3 install adafruit_blinka')
+# INSTALLER?????
 
-import board
 import busio
 import digitalio
 

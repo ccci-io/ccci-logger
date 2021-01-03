@@ -22,7 +22,7 @@ class Analog:
     def __repr__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
-class Accel:
+class Accelerometer:
     def __init__(self, signal):
         self.signal = signal
         #echo('Servo assigned')
